@@ -1,7 +1,7 @@
 <template>
     <v-main class="d-flex align-center justify-center fill-height">
         <v-card width="420" elevation="8" class="pa-6">
-            <v-card-title class="text-center text-h5 font-weight-bold pb-4">
+            <v-card-title class="text-center text-headline-small font-weight-bold pb-4">
                 <v-icon icon="mdi-shopping" class="me-2" />
                 Arashop
             </v-card-title>

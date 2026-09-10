@@ -9,24 +9,15 @@ import '@mdi/font/css/materialdesignicons.css';
 import App from './App.vue';
 import router from './router';
 import pinia from './store';
-
-const preferredTheme = localStorage.getItem('arashop.theme') === 'dark' ? 'dark' : 'light';
+import { defaults, getDefaultTheme, themes } from './theme';
 
 const vuetify = createVuetify({
     components,
     directives,
+    defaults,
     theme: {
-        defaultTheme: preferredTheme,
-        themes: {
-            light: {
-                dark: false,
-                colors: { primary: '#1867C0' },
-            },
-            dark: {
-                dark: true,
-                colors: { primary: '#90CAF9' },
-            },
-        },
+        defaultTheme: getDefaultTheme(),
+        themes,
     },
 });
 

@@ -1,43 +1,80 @@
 <template>
-    <v-app-bar app color="primary" dark>
-        <v-app-bar-title>
-            <v-icon icon="mdi-shopping" class="me-2" />
-            Arashop
-        </v-app-bar-title>
+    <v-app-bar color="surface-container-lowest" elevation="0" class="">
+        <div class="d-flex align-center w-100 px-4">
+            <v-btn
+                :icon="drawer ? 'mdi-backburger' : 'mdi-menu'"
+                variant="text"
+                size="small"
+                aria-label="Toggle sidebar"
+                class="me-2"
+                @click="drawer = !drawer"
+            />
 
-        <v-spacer />
+            <router-link to="/" class="d-flex align-center ga-3 text-decoration-none">
+                <svg
+                    class="flex-shrink-0"
+                    width="32"
+                    height="32"
+                    viewBox="0 0 120 120"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                >
+                    <defs>
+                        <linearGradient id="stitch-rose" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#FBAFAF" />
+                            <stop offset="100%" stop-color="#E27D8C" />
+                        </linearGradient>
+                        <linearGradient id="stitch-mint" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#99E1E5" />
+                            <stop offset="100%" stop-color="#4DB6AC" />
+                        </linearGradient>
+                    </defs>
+                    <rect width="120" height="120" rx="28" fill="url(#stitch-rose)" />
+                    <path d="M34 86L60 32L86 86H70L60 62L50 86H34Z" fill="#FFFFFF" />
+                    <path d="M48 68H72" stroke="#F3E8CB" stroke-width="5" stroke-linecap="round" />
+                    <circle cx="88" cy="34" r="12" fill="url(#stitch-mint)" />
+                    <path d="M83 34L87 38L93 30" stroke="#004D40" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <span class="d-flex flex-column">
+                    <span class="text-body-large font-weight-bold lh-1">Arashop</span>
+                    <span class="text-body-small text-medium-emphasis lh-1 mt-1">US → MX Arbitrage</span>
+                </span>
+            </router-link>
 
-        <ThemeToggle />
+            <v-spacer />
 
-        <v-menu location="bottom end">
-            <template #activator="{ props }">
-                <v-btn v-bind="props" variant="text">
-                    <v-icon icon="mdi-account" class="me-2" />
-                    {{ auth.user?.name }}
-                </v-btn>
-            </template>
+            <v-chip
+                variant="flat"
+                class="bg-surface-mint-subtle text-mint-deep text-body-medium font-weight-medium hidden-sm-and-down border-sm border-mint-seafoam border-opacity-100"
+            >
+                <div class="d-flex align-center gc-1">
+                    <span class="fx-dot rounded-circle"></span>
+                    <span>1 USD = {{ fxRate.toFixed(2) }} MXN</span>
+                </div>
+            </v-chip>
 
-            <v-list>
-                <v-list-item prepend-icon="mdi-logout" title="Log out" @click="logout" />
-            </v-list>
-        </v-menu>
+            <ThemeToggle />
+
+            <v-menu location="bottom end">
+                <template #activator="{ props }">
+                    <v-btn v-bind="props" variant="text" class="ms-1">
+                        <v-avatar size="32" color="primary" class="me-2">
+                            <v-icon icon="mdi-account" size="18" />
+                        </v-avatar>
+                        <span class="hidden-sm-and-down">{{ auth.user?.name }}</span>
+                    </v-btn>
+                </template>
+
+                <v-list>
+                    <v-list-item prepend-icon="mdi-logout" title="Log out" @click="logout" />
+                </v-list>
+            </v-menu>
+        </div>
     </v-app-bar>
 
-    <v-navigation-drawer app permanent>
-        <v-list density="comfortable" nav>
-            <v-list-item
-                v-for="item in navItems"
-                :key="item.to"
-                :prepend-icon="item.icon"
-                :title="item.title"
-                :to="item.to"
-                :exact="item.exact"
-                color="primary"
-            />
-        </v-list>
-    </v-navigation-drawer>
+    <AppSidebar v-model="drawer" :fx-rate="fxRate" />
 
-    <v-main>
+    <v-main class="stitch-canvas">
         <v-container fluid class="pa-6">
             <router-view />
         </v-container>
@@ -46,20 +83,16 @@
 
 <script setup>
 import { useRouter } from 'vue-router';
-import { onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useAuthStore } from '../store/auth';
+import AppSidebar from '../components/AppSidebar.vue';
 import ThemeToggle from '../components/ThemeToggle.vue';
+import http from '../api/http';
 
 const auth = useAuthStore();
 const router = useRouter();
-
-const navItems = [
-    { title: 'Dashboard', icon: 'mdi-view-dashboard', to: '/', exact: true },
-    { title: 'Products', icon: 'mdi-package-variant', to: '/products' },
-    { title: 'Stock', icon: 'mdi-warehouse', to: '/stock' },
-    { title: 'Pricing', icon: 'mdi-calculator', to: '/pricing' },
-    { title: 'Settings', icon: 'mdi-cog', to: '/settings' },
-];
+const drawer = ref(true);
+const fxRate = ref(18.0);
 
 async function logout() {
     await auth.logout();
@@ -75,25 +108,12 @@ onMounted(async () => {
             auth.clearSession();
         }
     }
+
+    try {
+        const settings = await http.get('/api/settings');
+        fxRate.value = Number(settings['fx.usd_to_mxn']) || 18.0;
+    } catch {
+        // keep the fallback rate when settings are unavailable
+    }
 });
 </script>
-
-const l = new Set([
-    '0G6A4575',
-    '0G6A4581',
-    '0G6A4625',
-    '0G6A4638',
-    '0G6A4562',
-    '0G6A4624',
-    '0G6A4563',
-    '0G6A4643',
-    '0G6A4527',
-    '0G6A4524',
-    '0G6A4584',
-    '0G6A4509',
-    '⁠0G6A4475',
-    '⁠⁠0G6A4498',
-    '⁠⁠0G6A4616',
-    '⁠⁠0G6A4629',
-])
-

@@ -25,7 +25,9 @@ async function request(method, path, body = null) {
         headers['X-CSRF-TOKEN'] = csrfToken;
     }
 
-    if (body !== null) {
+    const isFormData = body instanceof FormData;
+
+    if (body !== null && !isFormData) {
         headers['Content-Type'] = 'application/json';
     }
 
@@ -33,7 +35,7 @@ async function request(method, path, body = null) {
         method,
         headers,
         credentials: 'same-origin',
-        body: body !== null ? JSON.stringify(body) : null,
+        body: isFormData ? body : body !== null ? JSON.stringify(body) : null,
     });
 
     refreshCsrfToken(response);

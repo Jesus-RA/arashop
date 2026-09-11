@@ -42,12 +42,6 @@
                         </v-avatar>
                     </div>
                     <div class="text-body-large font-weight-bold mb-1">{{ product.name }}</div>
-                    <div class="d-flex align-center ga-2 mb-3">
-                        <span v-if="product.sku" class="text-body-small font-mono bg-surface-container-low px-2 py-1 rounded">
-                            {{ product.sku }}
-                        </span>
-                        <span v-else class="text-body-small text-medium-emphasis">No SKU</span>
-                    </div>
                     <div class="d-flex align-center justify-space-between border-t-sm border-warm  pt-3">
                         <div>
                             <div class="text-body-small text-medium-emphasis">From</div>
@@ -97,7 +91,7 @@
                         </div>
                         <div>
                             <h2 class="text-body-large font-weight-bold mb-0">Mexico Retail Variants</h2>
-                            <p class="text-body-small text-medium-emphasis mb-0">Live SKU pricing &amp; stock snapshot</p>
+                            <p class="text-body-small text-medium-emphasis mb-0">Live variant pricing &amp; stock snapshot</p>
                         </div>
                         <v-spacer />
                         <router-link
@@ -112,7 +106,6 @@
                             <thead>
                                 <tr>
                                     <th class="px-4 py-3">Variant</th>
-                                    <th class="px-4 py-3">SKU</th>
                                     <th class="px-4 py-3">Attributes</th>
                                     <th class="px-4 py-3 text-right">Cost (USD)</th>
                                     <th class="px-4 py-3 text-right">Price (MXN)</th>
@@ -122,12 +115,6 @@
                             <tbody>
                                 <tr v-for="variant in product.variants" :key="variant.id" class="surface-row-hover">
                                     <td class="px-4 py-3 font-weight-medium">{{ variant.name }}</td>
-                                    <td class="px-4 py-3">
-                                        <span v-if="variant.sku" class="text-body-small font-mono bg-surface-container-low px-2 py-1 rounded">
-                                            {{ variant.sku }}
-                                        </span>
-                                        <span v-else class="text-body-small text-medium-emphasis">—</span>
-                                    </td>
                                     <td class="px-4 py-3">
                                         <v-chip
                                             v-for="(value, key) in variant.attributes"
@@ -211,6 +198,7 @@ import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import http from '../../api/http';
 import { formatMxn, formatUsd } from '../../utils/format';
+import { statusClasses, statusDotColor, statusLabel } from '../../utils/productStatus';
 
 const route = useRoute();
 const router = useRouter();
@@ -241,26 +229,6 @@ function avg(values) {
     if (!values.length) return 0;
 
     return values.reduce((sum, value) => sum + value, 0) / values.length;
-}
-
-function statusLabel(status) {
-    return ({ active: 'Active', draft: 'Draft', archived: 'Archived' })[status] ?? status;
-}
-
-function statusClasses(status) {
-    return {
-        active: 'bg-surface-mint-subtle text-mint-deep',
-        draft: 'bg-surface-cream-subtle text-status-warning',
-        archived: 'bg-canvas-tint text-on-surface-variant',
-    }[status];
-}
-
-function statusDotColor(status) {
-    return {
-        active: 'rgb(var(--v-theme-status-success))',
-        draft: 'rgb(var(--v-theme-status-warning))',
-        archived: 'rgb(var(--v-theme-on-surface-variant))',
-    }[status];
 }
 
 async function load() {

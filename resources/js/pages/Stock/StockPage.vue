@@ -11,7 +11,7 @@
                 </div>
                 <h1 class="text-headline-small font-weight-bold mb-0">Stock</h1>
                 <p class="text-body-medium text-medium-emphasis mb-0 mt-1">
-                    Monitor unit balances across every cross-border SKU.
+                    Monitor unit balances across every cross-border variant.
                 </p>
             </div>
         </div>
@@ -20,12 +20,12 @@
             <v-col cols="12" sm="6" lg="3">
                 <v-card class="rounded-lg px-5 py-4">
                     <div class="d-flex align-center justify-space-between">
-                        <span class="text-body-small text-medium-emphasis">Total SKUs Monitored</span>
+                        <span class="text-body-small text-medium-emphasis">Total Variants Monitored</span>
                         <div class="stitch-kpi-icon rounded-lg bg-surface-rose-subtle">
                             <v-icon icon="mdi-variant" color="primary" size="18" />
                         </div>
                     </div>
-                    <div class="text-title-large font-weight-bold mt-2">{{ totalSkus }} <span class="text-body-small text-medium-emphasis">Series</span></div>
+                    <div class="text-title-large font-weight-bold mt-2">{{ totalVariants }} <span class="text-body-small text-medium-emphasis">Series</span></div>
                 </v-card>
             </v-col>
             <v-col cols="12" sm="6" lg="3">
@@ -111,10 +111,6 @@
                 <template #item.description="{ item }">
                     <div class="font-weight-medium">{{ item.product_name }}</div>
                     <div class="text-body-medium text-medium-emphasis">{{ item.name }}</div>
-                </template>
-
-                <template #item.sku="{ item }">
-                    <span class="text-body-small font-mono bg-surface-container-low px-2 py-1 rounded">{{ item.sku }}</span>
                 </template>
 
                 <template #item.attributes="{ item }">
@@ -313,7 +309,6 @@ import { formatMxn, formatUsd } from '../../utils/format';
 
 const headers = [
     { title: 'Product', key: 'description', sortable: false },
-    { title: 'SKU', key: 'sku' },
     { title: 'Attributes', key: 'attributes', sortable: false },
     { title: 'Cost (USD)', key: 'cost_usd', sortable: false },
     { title: 'Price (MXN)', key: 'price_mxn', sortable: false },
@@ -357,7 +352,7 @@ const filteredItems = computed(() => {
     return items.value.filter((item) => item.stock_quantity === 0);
 });
 
-const totalSkus = computed(() => items.value.length || total.value);
+const totalVariants = computed(() => items.value.length || total.value);
 const onHandTotal = computed(() => items.value.reduce((sum, item) => sum + (Number(item.stock_quantity) || 0), 0));
 const lowStockCount = computed(() => items.value.filter((item) => item.stock_quantity <= lowStockThreshold).length);
 

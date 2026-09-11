@@ -8,10 +8,13 @@
                 </div>
                 <h1 class="text-headline-small font-weight-bold mb-0">Products</h1>
                 <p class="text-body-medium text-medium-emphasis mb-0 mt-1">
-                    Manage imported Amazon US catalog entries &amp; active Mexico retail SKU variants.
+                    Manage imported Amazon US catalog entries &amp; active Mexico retail variants.
                 </p>
             </div>
             <div class="d-flex align-center ga-2">
+                <v-btn variant="flat" color="surface" prepend-icon="mdi-tray-arrow-down" @click="importDialogShow = true">
+                    Import from CSV
+                </v-btn>
                 <v-btn color="primary" prepend-icon="mdi-plus" :to="{ name: 'products.create' }">
                     New product
                 </v-btn>
@@ -25,8 +28,8 @@
                 </KpiCard>
             </v-col>
             <v-col cols="12" sm="6" lg="3">
-                <KpiCard title="Active Arbitrage SKUs" icon="mdi-check-decagram" icon-color="mint-deep">
-                    {{ activeSkuCount }} Active
+                <KpiCard title="Active Arbitrage Variants" icon="mdi-check-decagram" icon-color="mint-deep">
+                    {{ activeVariantCount }} Active
                 </KpiCard>
             </v-col>
             <v-col cols="12" sm="6" lg="3">
@@ -96,12 +99,6 @@
 
                 <template #item.name="{ item }">
                     <div class="font-weight-medium">{{ item.name }}</div>
-                    <div class="text-body-small text-medium-emphasis">{{ item.sku ? 'SKU ' + item.sku : '' }}</div>
-                </template>
-
-                <template #item.sku="{ item }">
-                    <span v-if="item.sku" class="text-body-small font-mono bg-surface-container-low px-2 py-1 rounded">{{ item.sku }}</span>
-                    <span v-else class="text-body-small text-medium-emphasis">—</span>
                 </template>
 
                 <template #item.status="{ item }">
@@ -147,6 +144,8 @@
             </v-data-table-server>
         </v-card>
 
+        <ImportProductsDialog v-model="importDialogShow" @imported="onImported" @failed="onImportFailed" />
+
         <v-dialog v-model="deleteDialog.show" max-width="420">
             <v-card class="pa-2">
                 <v-card-text class="text-center pt-6">
@@ -171,12 +170,16 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue';
 import KpiCard from '../../components/KpiCard.vue';
+import ImportProductsDialog from '../../components/ImportProductsDialog.vue';
 import http from '../../api/http';
+import { useUiStore } from '../../store/ui';
+import { statusClasses, statusDotColor, statusLabel } from '../../utils/productStatus';
+
+const uiStore = useUiStore();
 
 const headers = [
     { title: 'Image', key: 'image_path', sortable: false, width: '76px' },
-    { title: 'Product Name & SKU', key: 'name' },
-    { title: 'SKU', key: 'sku', sortable: false },
+    { title: 'Product Name', key: 'name' },
     { title: 'Status', key: 'status', sortable: false },
     { title: 'Variants', key: 'variants_count', sortable: false },
     { title: 'Stock Total', key: 'total_stock', sortable: false },
@@ -195,6 +198,8 @@ const stockRows = ref([]);
 const deleting = ref(false);
 const deleteDialog = ref({ show: false, product: null });
 
+const importDialogShow = ref(false);
+
 const filterPills = [
     { label: 'All', value: 'all' },
     { label: 'Active', value: 'active' },
@@ -211,7 +216,7 @@ const filteredProducts = computed(() => {
 });
 
 const listedCatalog = computed(() => total.value);
-const activeSkuCount = computed(() =>
+const activeVariantCount = computed(() =>
     products.value
         .filter((product) => product.status === 'active')
         .reduce((sum, product) => sum + (product.variants_count ?? 0), 0),
@@ -230,26 +235,6 @@ const avgMargin = computed(() => {
 
 const currentStart = computed(() => (total.value === 0 ? 0 : (perPage.value * 1) - perPage.value + 1));
 const currentEnd = computed(() => Math.min(perPage.value, total.value));
-
-function statusLabel(status) {
-    return ({ active: 'Active', draft: 'Draft', archived: 'Archived' })[status] ?? status;
-}
-
-function statusClasses(status) {
-    return {
-        active: 'bg-surface-mint-subtle text-mint-deep',
-        draft: 'bg-surface-cream-subtle text-status-warning',
-        archived: 'bg-canvas-tint text-on-surface-variant',
-    }[status];
-}
-
-function statusDotColor(status) {
-    return {
-        active: 'rgb(var(--v-theme-status-success))',
-        draft: 'rgb(var(--v-theme-status-warning))',
-        archived: 'rgb(var(--v-theme-on-surface-variant))',
-    }[status];
-}
 
 function totalStockChip(quantity) {
     if (quantity <= 2) {
@@ -300,13 +285,25 @@ function confirmDelete(product) {
     deleteDialog.value = { show: true, product };
 }
 
+function onImported(result) {
+    uiStore.notify(`${result.imported} product${result.imported === 1 ? '' : 's'} imported`);
+    load();
+}
+
+function onImportFailed(message) {
+    uiStore.notify(message, { color: 'error', timeout: 5000 });
+}
+
 async function destroy() {
     deleting.value = true;
 
     try {
         await http.delete(`/api/products/${deleteDialog.value.product.id}`);
         deleteDialog.value.show = false;
+        uiStore.notify('Product deleted');
         await load();
+    } catch {
+        uiStore.notify('The product could not be deleted.', { color: 'error', timeout: 5000 });
     } finally {
         deleting.value = false;
     }

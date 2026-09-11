@@ -291,10 +291,10 @@ export const defaults = {
     VDialog: { rounded: 'xl' },
     VBtn: { rounded: 'md' },
     VChip: { rounded: 'pill' },
-    VTextField: { variant: 'outlined', color: 'primary', density: 'compact' },
-    VSelect: { variant: 'outlined', color: 'primary', density: 'compact' },
+    VTextField: { variant: 'outlined', color: 'primary', density: 'compact', hideDetails: 'auto' },
+    VSelect: { variant: 'outlined', color: 'primary', density: 'compact', hideDetails: 'auto' },
     VCombobox: { variant: 'outlined', color: 'primary' },
-    VTextarea: { variant: 'outlined', color: 'primary' },
+    VTextarea: { variant: 'outlined', color: 'primary', hideDetails: 'auto' },
     VAlert: { variant: 'tonal' },
 };
 

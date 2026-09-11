@@ -3,7 +3,9 @@
 namespace App\Products\Controllers;
 
 use App\Inventory\Actions\ApplyStockAdjustment;
+use App\Products\Actions\ImportProducts;
 use App\Products\Models\Product;
+use App\Products\Requests\ImportProductsRequest;
 use App\Products\Requests\StoreProductRequest;
 use App\Products\Requests\UpdateProductRequest;
 use App\Products\Resources\ProductResource;
@@ -58,6 +60,20 @@ class ProductController
         $this->syncVariants($product, $request->validated('variants'));
 
         return new ProductResource($product->load('variants'));
+    }
+
+    public function import(ImportProductsRequest $request): JsonResponse
+    {
+        $result = app(ImportProducts::class)->handle($request->file('file'));
+
+        return response()->json($result);
+    }
+
+    public function importPreview(ImportProductsRequest $request): JsonResponse
+    {
+        $result = app(ImportProducts::class)->preview($request->file('file'));
+
+        return response()->json($result);
     }
 
     public function destroy(Request $request, Product $product): JsonResponse

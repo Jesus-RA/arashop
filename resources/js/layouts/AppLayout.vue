@@ -79,17 +79,31 @@
             <router-view />
         </v-container>
     </v-main>
+
+    <v-snackbar
+        v-model="uiStore.visible"
+        :color="uiStore.color"
+        :timeout="uiStore.timeout"
+        location="top right"
+    >
+        {{ uiStore.message }}
+        <template #actions>
+            <v-btn variant="text" @click="uiStore.visible = false">Close</v-btn>
+        </template>
+    </v-snackbar>
 </template>
 
 <script setup>
 import { useRouter } from 'vue-router';
 import { onMounted, ref } from 'vue';
 import { useAuthStore } from '../store/auth';
+import { useUiStore } from '../store/ui';
 import AppSidebar from '../components/AppSidebar.vue';
 import ThemeToggle from '../components/ThemeToggle.vue';
 import http from '../api/http';
 
 const auth = useAuthStore();
+const uiStore = useUiStore();
 const router = useRouter();
 const drawer = ref(true);
 const fxRate = ref(18.0);

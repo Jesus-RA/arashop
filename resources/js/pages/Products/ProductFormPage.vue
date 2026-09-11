@@ -40,162 +40,138 @@
                         <v-text-field
                             v-model.trim="form.name"
                             label="Name"
-                            :error-messages="fieldErrors('name')"
-                            required
-                            class="mb-2"
-                        />
-                        <v-text-field
-                            v-model.trim="form.sku"
-                            label="Product SKU"
-                            :error-messages="fieldErrors('sku')"
-                            class="mb-2"
+                            class="mb-2 required"
+                            :rules="[required('Product name is required')]"
                         />
                         <v-select
                             v-model="form.status"
                             :items="statusOptions"
                             label="Status"
-                            :error-messages="fieldErrors('status')"
                             class="mb-2"
                         />
                         <v-textarea
                             v-model.trim="form.description"
                             label="Description"
                             rows="3"
-                            :error-messages="fieldErrors('description')"
                         />
                     </v-card>
                 </v-col>
 
                 <v-col cols="12" md="8">
-                    <v-card class="stitch-table-card rounded-lg">
-                        <div class="d-flex align-center justify-space-between ga-2 p-4 border-b-sm border-warm">
+                    <v-card class="rounded-lg">
+                        <v-card-title class="d-flex align-center justify-space-between ga-2 p-4 border-b-sm border-warm">
                             <div class="d-flex align-center ga-3">
                                 <div class="stitch-kpi-icon rounded-lg bg-surface-mint-subtle">
                                     <v-icon icon="mdi-variant" color="mint-deep" size="18" />
                                 </div>
                                 <div>
                                     <h2 class="text-body-large font-weight-bold mb-0">Pricing &amp; Inventory Matrix</h2>
-                                    <p class="text-body-small text-medium-emphasis mb-0">Cost, resale and stock per SKU variant</p>
+                                    <p class="text-body-small text-medium-emphasis mb-0">Cost, resale and stock per variant</p>
                                 </div>
                             </div>
                             <v-btn color="primary" variant="tonal" size="small" prepend-icon="mdi-plus" @click="addVariant">
                                 Add variant
                             </v-btn>
-                        </div>
+                        </v-card-title>
 
-                        <v-alert v-if="fieldErrors('variants').length" type="error" variant="tonal" class="mx-4 mt-4">
-                            {{ fieldErrors('variants').join(' ') }}
-                        </v-alert>
+                        <v-card-text>
+                            <v-data-table-virtual
+                                :items="form.variants"
+                                :headers="variantColumns"
+                                density="comfortable"
+                                disable-sort
+                                hide-no-data
+                                no-data-text="No variants yet"
+                                class="stitch-table"
+                            >
+                                <template #item.name="{ index }">
+                                    <v-text-field
+                                        v-model.trim="form.variants[index].name"
+                                        label="Variant name"
+                                        density="compact"
+                                        hide-details="auto"
+                                        :rules="[required('Variant name is required')]"
+                                    />
+                                </template>
 
-                        <div class="table-scroll px-4 pb-4">
-                            <table class="stitch-table w-100">
-                                <thead>
-                                    <tr>
-                                        <th class="px-4 py-3">Name</th>
-                                        <th class="px-4 py-3">SKU</th>
-                                        <th class="px-4 py-3">Attributes</th>
-                                        <th class="px-4 py-3">Cost (USD)</th>
-                                        <th class="px-4 py-3">Price (MXN)</th>
-                                        <th class="px-4 py-3" v-if="!isEdit">Qty</th>
-                                        <th class="px-4 py-3" />
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="(variant, index) in form.variants" :key="index">
-                                        <td class="px-4 py-3" style="min-width: 160px">
-                                            <v-text-field
-                                                v-model.trim="variant.name"
-                                                label="Variant name"
-                                                density="compact"
-                                                hide-details
-                                                :error-messages="fieldErrors(`variants.${index}.name`)"
-                                            />
-                                        </td>
-                                        <td class="px-4 py-3" style="min-width: 140px">
-                                            <v-text-field
-                                                v-model.trim="variant.sku"
-                                                label="SKU"
-                                                density="compact"
-                                                hide-details
-                                                :error-messages="fieldErrors(`variants.${index}.sku`)"
-                                            />
-                                        </td>
-                                        <td class="px-4 py-3" style="min-width: 260px">
-                                            <div
-                                                v-for="(attribute, attrIndex) in variant.attributes"
-                                                :key="attrIndex"
-                                                class="d-flex ga-2 mb-1"
-                                            >
-                                                <v-text-field
-                                                    v-model.trim="attribute.key"
-                                                    label="Attribute"
-                                                    density="compact"
-                                                    hide-details
-                                                    style="max-width: 130px"
-                                                />
-                                                <v-text-field
-                                                    v-model.trim="attribute.value"
-                                                    label="Value"
-                                                    density="compact"
-                                                    hide-details
-                                                    style="max-width: 130px"
-                                                    @keydown.enter.prevent
-                                                />
-                                                <v-btn
-                                                    icon="mdi-close"
-                                                    size="x-small"
-                                                    variant="text"
-                                                    @click="variant.attributes.splice(attrIndex, 1)"
-                                                />
-                                            </div>
-                                            <v-btn size="x-small" variant="text" prepend-icon="mdi-plus" @click="variant.attributes.push({ key: '', value: '' })">
-                                                Attribute
-                                            </v-btn>
-                                        </td>
-                                        <td class="px-4 py-3" style="min-width: 120px">
-                                            <v-text-field
-                                                v-model.number="variant.cost_usd"
-                                                label="Cost USD"
-                                                type="number"
-                                                density="compact"
-                                                hide-details
-                                                :error-messages="fieldErrors(`variants.${index}.cost_usd`)"
-                                            />
-                                        </td>
-                                        <td class="px-4 py-3" style="min-width: 120px">
-                                            <v-text-field
-                                                v-model.number="variant.price_mxn"
-                                                label="Price MXN"
-                                                type="number"
-                                                density="compact"
-                                                hide-details
-                                                :error-messages="fieldErrors(`variants.${index}.price_mxn`)"
-                                            />
-                                        </td>
-                                        <td class="px-4 py-3" v-if="!isEdit" style="min-width: 120px">
-                                            <v-text-field
-                                                v-model.number="variant.stock_quantity"
-                                                label="Qty"
-                                                type="number"
-                                                density="compact"
-                                                hide-details
-                                                :error-messages="fieldErrors(`variants.${index}.stock_quantity`)"
-                                            />
-                                        </td>
-                                        <td class="px-4 py-3">
-                                            <v-btn
-                                                icon="mdi-delete-outline"
-                                                size="small"
-                                                variant="text"
-                                                color="error"
-                                                :disabled="form.variants.length === 1"
-                                                @click="form.variants.splice(index, 1)"
-                                            />
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                                <template #item.attributes="{ index }">
+                                    <div
+                                        v-for="(attribute, attrIndex) in form.variants[index].attributes"
+                                        :key="attrIndex"
+                                        class="d-flex ga-2 mb-1"
+                                    >
+                                        <v-text-field
+                                            v-model.trim="attribute.key"
+                                            label="Attribute"
+                                            density="compact"
+                                            hide-details="auto"
+                                            style="max-width: 130px"
+                                        />
+                                        <v-text-field
+                                            v-model.trim="attribute.value"
+                                            label="Value"
+                                            density="compact"
+                                            hide-details="auto"
+                                            style="max-width: 130px"
+                                            @keydown.enter.prevent
+                                        />
+                                        <v-btn
+                                            icon="mdi-close"
+                                            size="x-small"
+                                            variant="text"
+                                            @click="form.variants[index].attributes.splice(attrIndex, 1)"
+                                        />
+                                    </div>
+                                    <v-btn size="x-small" variant="text" prepend-icon="mdi-plus" @click="form.variants[index].attributes.push({ key: '', value: '' })">
+                                        Attribute
+                                    </v-btn>
+                                </template>
+
+                                <template #item.cost_usd="{ index }">
+                                    <v-text-field
+                                        v-model.number="form.variants[index].cost_usd"
+                                        label="Cost USD"
+                                        type="number"
+                                        density="compact"
+                                        hide-details="auto"
+                                        style="max-width: 150px"
+                                    />
+                                </template>
+
+                                <template #item.price_mxn="{ index }">
+                                    <v-text-field
+                                        v-model.number="form.variants[index].price_mxn"
+                                        label="Price MXN"
+                                        type="number"
+                                        density="compact"
+                                        hide-details="auto"
+                                        style="max-width: 150px"
+                                    />
+                                </template>
+
+                                <template #item.stock_quantity="{ index }">
+                                    <v-text-field
+                                        v-model.number="form.variants[index].stock_quantity"
+                                        label="Qty"
+                                        type="number"
+                                        density="compact"
+                                        hide-details="auto"
+                                        style="max-width: 120px"
+                                    />
+                                </template>
+
+                                <template #item.actions="{ index }">
+                                    <v-btn
+                                        icon="mdi-delete-outline"
+                                        size="small"
+                                        variant="text"
+                                        color="error"
+                                        :disabled="form.variants.length === 1"
+                                        @click="form.variants.splice(index, 1)"
+                                    />
+                                </template>
+                            </v-data-table-virtual>
+                        </v-card-text>
                     </v-card>
                 </v-col>
             </v-row>
@@ -225,9 +201,12 @@
 import { computed, onMounted, reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import http from '../../api/http';
+import { useUiStore } from '../../store/ui';
+import { required } from '../../utils/validation';
 
 const route = useRoute();
 const router = useRouter();
+const uiStore = useUiStore();
 
 const isEdit = computed(() => route.name === 'products.edit');
 
@@ -238,12 +217,10 @@ const statusOptions = [
 ];
 
 const saving = ref(false);
-const errors = ref({});
 
 const form = reactive({
     name: '',
     description: '',
-    sku: '',
     status: 'draft',
     variants: [newVariant()],
 });
@@ -252,7 +229,6 @@ function newVariant() {
     return {
         id: null,
         name: '',
-        sku: '',
         attributes: [],
         cost_usd: null,
         price_mxn: null,
@@ -264,9 +240,14 @@ function addVariant() {
     form.variants.push(newVariant());
 }
 
-function fieldErrors(key) {
-    return errors.value[key] ?? [];
-}
+const variantColumns = computed(() => [
+    { key: 'name', title: 'Name', sortable: false, minWidth: '170px' },
+    { key: 'attributes', title: 'Attributes', sortable: false, width: '340px' },
+    { key: 'cost_usd', title: 'Cost (USD)', sortable: false, width: '140px' },
+    { key: 'price_mxn', title: 'Price (MXN)', sortable: false, width: '140px' },
+    ...(!isEdit.value ? [{ key: 'stock_quantity', title: 'Qty', sortable: false, width: '120px' }] : []),
+    { key: 'actions', title: '', sortable: false, width: '56px', align: 'end' },
+]);
 
 function attributesToObject(attributes) {
     return attributes
@@ -282,12 +263,10 @@ async function loadProduct() {
 
     form.name = data.name;
     form.description = data.description ?? '';
-    form.sku = data.sku ?? '';
     form.status = data.status;
     form.variants = data.variants.map((variant) => ({
         id: variant.id,
         name: variant.name,
-        sku: variant.sku ?? '',
         attributes: Object.entries(variant.attributes ?? {}).map(([key, value]) => ({ key, value })),
         cost_usd: variant.cost_usd,
         price_mxn: variant.price_mxn,
@@ -297,17 +276,14 @@ async function loadProduct() {
 
 async function save() {
     saving.value = true;
-    errors.value = {};
 
     const payload = {
         name: form.name,
         description: form.description,
-        sku: form.sku,
         status: form.status,
         variants: form.variants.map((variant) => ({
             ...(variant.id ? { id: variant.id } : {}),
             name: variant.name,
-            sku: variant.sku,
             attributes: attributesToObject(variant.attributes),
             cost_usd: variant.cost_usd,
             price_mxn: variant.price_mxn,
@@ -320,9 +296,11 @@ async function save() {
             ? await http.put(`/api/products/${route.params.id}`, payload)
             : await http.post('/api/products', payload);
 
+        uiStore.notify(isEdit.value ? 'Product updated' : 'Product created');
         router.push({ name: 'products.show', params: { id: result.data.id } });
     } catch (error) {
-        errors.value = error.data?.errors ?? {};
+        const message = Object.values(error.data?.errors ?? {}).flat()[0] ?? 'Could not save the product.';
+        uiStore.notify(message, { color: 'error', timeout: 5000 });
     } finally {
         saving.value = false;
     }
@@ -336,14 +314,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.table-scroll {
-    overflow-x: auto;
-}
-
-.stitch-table-card {
-    overflow: hidden;
-}
-
 .image-drop {
     background: rgb(var(--v-theme-canvas-tint));
 }

@@ -17,7 +17,7 @@
             <v-col cols="12" sm="6" lg="3">
                 <v-card class="rounded-lg px-5 py-4">
                     <div class="d-flex align-center justify-space-between">
-                        <span class="text-body-small text-medium-emphasis">Active SKUs &amp; Catalog</span>
+                        <span class="text-body-small text-medium-emphasis">Active Products &amp; Catalog</span>
                         <div class="stitch-kpi-icon rounded-lg bg-surface-rose-subtle">
                             <v-icon icon="mdi-package-variant" color="primary" size="18" />
                         </div>
@@ -26,7 +26,7 @@
                         <span class="text-headline-small font-weight-bold">{{ productsCount }}</span>
                     </div>
                     <div class="d-flex align-center ga-2 mt-1">
-                        <v-chip size="small" variant="flat" class="stitch-pill bg-surface-rose-subtle text-primary">{{ skuCount }} SKUs</v-chip>
+                        <v-chip size="small" variant="flat" class="stitch-pill bg-surface-rose-subtle text-primary">{{ variantCount }} Variants</v-chip>
                         <span class="text-body-small text-medium-emphasis">products tracked</span>
                     </div>
                 </v-card>
@@ -291,7 +291,7 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 
 const productsCount = ref(0);
-const skuCount = ref(0);
+const variantCount = ref(0);
 const totalCostUsd = ref(0);
 const totalResaleMxn = ref(0);
 const fxRate = ref(18.0);
@@ -359,13 +359,12 @@ async function load() {
 
     fxRate.value = Number(settingsData['fx.usd_to_mxn']) || 18;
     productsCount.value = productsData.meta?.total ?? productsData.data.length;
-    skuCount.value = productsData.data.reduce((sum, product) => sum + (product.variants_count ?? 0), 0);
+    variantCount.value = productsData.data.reduce((sum, product) => sum + (product.variants_count ?? 0), 0);
 
     stockRows.value = stockData.data.map((row) => ({
         id: row.id,
         product_name: row.product_name ?? row.name,
         name: row.name,
-        sku: row.sku,
         cost_usd: row.cost_usd,
         price_mxn: row.price_mxn,
         stock_quantity: row.stock_quantity,

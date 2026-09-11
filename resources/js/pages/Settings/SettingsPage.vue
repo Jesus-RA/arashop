@@ -14,17 +14,6 @@
         </div>
 
         <v-form @submit.prevent="save">
-            <v-fade-transition>
-                <v-alert
-                    v-if="saved"
-                    type="success"
-                    variant="tonal"
-                    class="mb-4"
-                >
-                    Settings saved
-                </v-alert>
-            </v-fade-transition>
-
             <v-row>
                 <v-col cols="12" lg="5">
                     <v-card class="rounded-lg px-6 py-5 mb-4">
@@ -141,11 +130,13 @@
 <script setup>
 import { onMounted, reactive, ref } from 'vue';
 import http from '../../api/http';
+import { useUiStore } from '../../store/ui';
 import { formatMxn } from '../../utils/format';
+
+const uiStore = useUiStore();
 
 const saving = ref(false);
 const errors = ref({});
-const saved = ref(false);
 
 const form = reactive({
     'fx.usd_to_mxn': 0,
@@ -167,14 +158,14 @@ async function loadSettings() {
 async function save() {
     saving.value = true;
     errors.value = {};
-    saved.value = false;
 
     try {
         const data = await http.put('/api/settings', form);
         Object.assign(form, data);
-        saved.value = true;
+        uiStore.notify('Settings saved');
     } catch (error) {
         errors.value = error.data?.errors ?? {};
+        uiStore.notify('Could not save settings. Review the highlighted fields.', { color: 'error', timeout: 5000 });
     } finally {
         saving.value = false;
     }

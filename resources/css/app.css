@@ -168,3 +168,10 @@ body {
 .font-mono {
     font-family: var(--v-font-family-mono, ui-monospace, 'SF Mono', monospace);
 }
+
+
+.required .v-label .v-field-label::after {
+    content: '*';
+    color: red;
+    display: block;
+}

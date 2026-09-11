@@ -2,7 +2,8 @@
 
 namespace App\Products\Controllers;
 
-use App\Inventory\Actions\ApplyStockAdjustment;
+use App\Inventory\Actions\AdjustStockAction;
+use App\Inventory\Enums\InventoryTransactionType;
 use App\Products\Models\Product;
 use App\Products\Models\ProductVariant;
 use App\Products\Requests\StoreProductVariantRequest;
@@ -27,7 +28,7 @@ class ProductVariantController
         $stock = (int) $request->integer('stock_quantity');
 
         if ($stock > 0) {
-            app(ApplyStockAdjustment::class)->handle($variant, $stock, 'initial', 'Initial stock', auth()->user());
+            app(AdjustStockAction::class)->handle($variant, $stock, InventoryTransactionType::Restock, 'initial', 'Initial stock', auth()->user());
         }
 
         return new ProductVariantResource($variant);
@@ -47,10 +48,11 @@ class ProductVariantController
         ]);
 
         if ($targetStock !== $currentStock) {
-            app(ApplyStockAdjustment::class)->handle(
+            app(AdjustStockAction::class)->handle(
                 variant: $variant,
                 quantityChange: $targetStock - $currentStock,
-                reason: 'adjustment',
+                type: InventoryTransactionType::ManualAdjustment,
+                reason: 'variant edit',
                 notes: 'Variant edit',
                 user: auth()->user(),
             );

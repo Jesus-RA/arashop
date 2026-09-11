@@ -6,7 +6,7 @@
                 Arashop
             </v-card-title>
 
-            <v-form @submit.prevent="submit">
+            <v-form @submit.prevent="submit" class="d-flex flex-column gr-3">
                 <v-text-field
                     v-model="form.email"
                     label="Email"

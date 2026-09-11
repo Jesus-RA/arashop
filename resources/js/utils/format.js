@@ -16,4 +16,14 @@ export function formatMxn(value) {
     return mxnFormatter.format(Number(value ?? 0));
 }
 
-export default { formatUsd, formatMxn };
+export function formatDate(value) {
+    return new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: 'numeric' }).format(new Date(value));
+}
+
+export function formatDateTime(value) {
+    const time = new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit' }).format(new Date(value));
+
+    return `${formatDate(value)} @ ${time}`;
+}
+
+export default { formatUsd, formatMxn, formatDate, formatDateTime };

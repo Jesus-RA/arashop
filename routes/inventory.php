@@ -5,6 +5,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth')->group(function () {
     Route::get('/api/stock', [StockController::class, 'index']);
-    Route::get('/api/stock/{variant}/history', [StockController::class, 'history']);
-    Route::post('/api/stock/adjustments', [StockController::class, 'store']);
+    Route::post('/api/inventory/adjust', [StockController::class, 'adjust']);
+    Route::get('/api/variants/{variant}/transactions', [StockController::class, 'transactions']);
 });

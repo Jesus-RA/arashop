@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Inventory\Enums\InventoryTransactionType;
 use App\Models\User;
 use App\Products\Models\Product;
 use App\Products\Models\ProductVariant;
@@ -51,9 +52,10 @@ class ProductVariantApiTest extends TestCase
         $this->assertSame(10, $variant->stock_quantity);
         $this->assertSame('White', $variant->attributes['Color']);
 
-        $this->assertDatabaseHas('stock_adjustments', [
+        $this->assertDatabaseHas('inventory_transactions', [
             'variant_id' => $variant->id,
             'quantity_change' => 10,
+            'transaction_type' => InventoryTransactionType::Restock->value,
             'reason' => 'initial',
             'user_id' => $this->user->id,
         ]);
@@ -80,7 +82,7 @@ class ProductVariantApiTest extends TestCase
             'stock_quantity' => 7,
         ]);
 
-        $this->assertDatabaseCount('stock_adjustments', 0);
+        $this->assertDatabaseCount('inventory_transactions', 0);
     }
 
     public function test_it_adjusts_stock_when_quantity_changes_on_update(): void
@@ -103,10 +105,11 @@ class ProductVariantApiTest extends TestCase
             'stock_quantity' => 10,
         ]);
 
-        $this->assertDatabaseHas('stock_adjustments', [
+        $this->assertDatabaseHas('inventory_transactions', [
             'variant_id' => $variant->id,
             'quantity_change' => 7,
-            'reason' => 'adjustment',
+            'transaction_type' => InventoryTransactionType::ManualAdjustment->value,
+            'reason' => 'variant edit',
             'user_id' => $this->user->id,
         ]);
     }

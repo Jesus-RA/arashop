@@ -2,9 +2,11 @@
 
 namespace App\Inventory\Controllers;
 
-use App\Inventory\Actions\ApplyStockAdjustment;
+use App\Inventory\Actions\AdjustStockAction;
+use App\Inventory\Enums\InventoryTransactionType;
 use App\Inventory\Requests\AdjustStockRequest;
-use App\Inventory\Resources\StockAdjustmentResource;
+use App\Inventory\Resources\InventoryTransactionResource;
+use App\Inventory\Resources\StockVariantResource;
 use App\Products\Models\ProductVariant;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -30,26 +32,27 @@ class StockController
             ->orderBy('stock_quantity')
             ->paginate((int) $request->integer('per_page', 20));
 
-        return StockAdjustmentResource::collection($variants);
+        return StockVariantResource::collection($variants);
     }
 
-    public function history(Request $request, ProductVariant $variant): AnonymousResourceCollection
+    public function transactions(Request $request, ProductVariant $variant): AnonymousResourceCollection
     {
-        $adjustments = $variant->adjustments()
+        $transactions = $variant->transactions()
             ->with('user:id,name')
-            ->paginate((int) $request->integer('per_page', 10));
+            ->paginate((int) $request->integer('per_page', 50));
 
-        return StockAdjustmentResource::collection($adjustments);
+        return InventoryTransactionResource::collection($transactions);
     }
 
-    public function store(AdjustStockRequest $request): Response
+    public function adjust(AdjustStockRequest $request): Response
     {
         $variant = ProductVariant::findOrFail($request->integer('variant_id'));
 
-        app(ApplyStockAdjustment::class)->handle(
+        app(AdjustStockAction::class)->handle(
             variant: $variant,
             quantityChange: $request->integer('quantity_change'),
-            reason: $request->string('reason'),
+            type: InventoryTransactionType::from($request->string('transaction_type')),
+            reason: $request->input('reason'),
             notes: $request->input('notes'),
             user: $request->user(),
         );

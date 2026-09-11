@@ -54,6 +54,7 @@ const { mdAndDown } = useDisplay();
 const navItems = [
     { title: 'Dashboard', icon: 'mdi-view-dashboard', to: '/', exact: true },
     { title: 'Products', icon: 'mdi-package-variant', to: '/products', exact: false },
+    { title: 'Orders', icon: 'mdi-cart', to: '/orders', exact: false },
     { title: 'Stock', icon: 'mdi-warehouse', to: '/stock' },
     { title: 'Pricing', icon: 'mdi-calculator', to: '/pricing' },
     { title: 'Settings', icon: 'mdi-cog', to: '/settings' },

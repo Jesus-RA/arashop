@@ -2,7 +2,8 @@
 
 namespace App\Products\Actions;
 
-use App\Inventory\Actions\ApplyStockAdjustment;
+use App\Inventory\Actions\AdjustStockAction;
+use App\Inventory\Enums\InventoryTransactionType;
 use App\Products\Enums\ProductStatus;
 use App\Products\Models\Product;
 use Illuminate\Http\UploadedFile;
@@ -397,12 +398,12 @@ class ImportProducts
      */
     private function createProducts(array $products): array
     {
-        $applyStockAdjustment = app(ApplyStockAdjustment::class);
+        $adjustStockAction = app(AdjustStockAction::class);
 
         $imported = 0;
         $variants = 0;
 
-        DB::transaction(function () use ($products, $applyStockAdjustment, &$imported, &$variants): void {
+        DB::transaction(function () use ($products, $adjustStockAction, &$imported, &$variants): void {
             foreach ($products as $productData) {
                 $product = Product::create([
                     'name' => $productData['name'],
@@ -422,9 +423,10 @@ class ImportProducts
                     $variants++;
 
                     if ($variantData['stock_quantity'] > 0) {
-                        $applyStockAdjustment->handle(
+                        $adjustStockAction->handle(
                             $variant,
                             $variantData['stock_quantity'],
+                            InventoryTransactionType::Restock,
                             'initial',
                             'Bulk CSV import',
                             auth()->user(),

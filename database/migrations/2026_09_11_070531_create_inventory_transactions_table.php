@@ -6,30 +6,27 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('stock_adjustments', function (Blueprint $table) {
+        Schema::create('inventory_transactions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('variant_id')->constrained('product_variants')->cascadeOnDelete();
             $table->integer('quantity_change');
-            $table->string('reason');
+            $table->string('transaction_type');
+            $table->foreignId('reference_id')->nullable()->index();
+            $table->string('reason')->nullable();
             $table->text('notes')->nullable();
             $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
-            $table->timestamps();
+            $table->timestamp('created_at')->nullable();
 
             $table->index('variant_id');
+            $table->index('transaction_type');
             $table->index('created_at');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('stock_adjustments');
+        Schema::dropIfExists('inventory_transactions');
     }
 };

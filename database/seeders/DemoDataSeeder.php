@@ -2,7 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Inventory\Models\StockAdjustment;
+use App\Inventory\Actions\AdjustStockAction;
+use App\Inventory\Enums\InventoryTransactionType;
 use App\Models\User;
 use App\Products\Enums\ProductStatus;
 use App\Products\Models\Product;
@@ -78,13 +79,20 @@ class DemoDataSeeder extends Seeder
                     ],
                 );
 
-                if ($variant->adjustments()->where('reason', 'initial')->doesntExist()) {
-                    StockAdjustment::create([
-                        'variant_id' => $variant->id,
-                        'quantity_change' => $variantData['stock'],
-                        'reason' => 'initial',
-                        'user_id' => $owner->id,
-                    ]);
+                $hasInitial = $variant->transactions()
+                    ->where('transaction_type', InventoryTransactionType::Restock)
+                    ->where('reason', 'initial')
+                    ->doesntExist();
+
+                if ($hasInitial) {
+                    app(AdjustStockAction::class)->handle(
+                        variant: $variant,
+                        quantityChange: $variantData['stock'],
+                        type: InventoryTransactionType::Restock,
+                        reason: 'initial',
+                        notes: null,
+                        user: $owner,
+                    );
                 }
             }
         }

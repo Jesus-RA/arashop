@@ -2,7 +2,7 @@
 
 namespace App\Products\Models;
 
-use App\Inventory\Models\StockAdjustment;
+use App\Inventory\Models\InventoryTransaction;
 use Database\Factories\ProductVariantFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
@@ -41,10 +41,10 @@ class ProductVariant extends Model
     }
 
     /**
-     * @return HasMany<StockAdjustment, $this>
+     * @return HasMany<InventoryTransaction, $this>
      */
-    public function adjustments(): HasMany
+    public function transactions(): HasMany
     {
-        return $this->hasMany(StockAdjustment::class, 'variant_id')->latest();
+        return $this->hasMany(InventoryTransaction::class, 'variant_id')->latest();
     }
 }

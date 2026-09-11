@@ -60,7 +60,7 @@ class ProductImportTest extends TestCase
 
         $this->assertDatabaseCount('products', 2);
         $this->assertDatabaseCount('product_variants', 3);
-        $this->assertDatabaseCount('stock_adjustments', 2);
+        $this->assertDatabaseCount('inventory_transactions', 2);
 
         $product = Product::where('name', 'Ergonomic Mouse')->firstOrFail();
         $this->assertSame('active', $product->status->value);

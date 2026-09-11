@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Inventory\Enums\InventoryTransactionType;
 use App\Models\User;
 use App\Products\Models\Product;
 use App\Products\Models\ProductVariant;
@@ -38,13 +39,13 @@ class StockApiTest extends TestCase
             ->assertJsonPath('data.0.product_name', $this->product->name);
     }
 
-    public function test_it_applies_a_stock_adjustment(): void
+    public function test_it_applies_an_inventory_adjustment(): void
     {
         $this->actingAs($this->user)
-            ->postJson('/api/stock/adjustments', [
+            ->postJson('/api/inventory/adjust', [
                 'variant_id' => $this->variant->id,
                 'quantity_change' => -4,
-                'reason' => 'sale',
+                'transaction_type' => InventoryTransactionType::Sale->value,
                 'notes' => 'Sold two shirts',
             ])
             ->assertNoContent();
@@ -54,10 +55,10 @@ class StockApiTest extends TestCase
             'stock_quantity' => 6,
         ]);
 
-        $this->assertDatabaseHas('stock_adjustments', [
+        $this->assertDatabaseHas('inventory_transactions', [
             'variant_id' => $this->variant->id,
             'quantity_change' => -4,
-            'reason' => 'sale',
+            'transaction_type' => InventoryTransactionType::Sale->value,
             'user_id' => $this->user->id,
         ]);
     }
@@ -65,22 +66,69 @@ class StockApiTest extends TestCase
     public function test_it_rejects_zero_quantity_changes(): void
     {
         $this->actingAs($this->user)
-            ->postJson('/api/stock/adjustments', [
+            ->postJson('/api/inventory/adjust', [
                 'variant_id' => $this->variant->id,
                 'quantity_change' => 0,
+                'transaction_type' => InventoryTransactionType::ManualAdjustment->value,
                 'reason' => 'adjustment',
             ])
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['quantity_change']);
     }
 
+    public function test_it_requires_a_reason_for_manual_adjustments(): void
+    {
+        $this->actingAs($this->user)
+            ->postJson('/api/inventory/adjust', [
+                'variant_id' => $this->variant->id,
+                'quantity_change' => 3,
+                'transaction_type' => InventoryTransactionType::ManualAdjustment->value,
+            ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['reason']);
+    }
+
+    public function test_it_rejects_invalid_transaction_types(): void
+    {
+        $this->actingAs($this->user)
+            ->postJson('/api/inventory/adjust', [
+                'variant_id' => $this->variant->id,
+                'quantity_change' => 3,
+                'transaction_type' => 'SOMETHING_ELSE',
+            ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['transaction_type']);
+    }
+
+    public function test_it_applies_a_restock_without_a_reason(): void
+    {
+        $this->actingAs($this->user)
+            ->postJson('/api/inventory/adjust', [
+                'variant_id' => $this->variant->id,
+                'quantity_change' => 5,
+                'transaction_type' => InventoryTransactionType::Restock->value,
+            ])
+            ->assertNoContent();
+
+        $this->assertDatabaseHas('product_variants', [
+            'id' => $this->variant->id,
+            'stock_quantity' => 15,
+        ]);
+
+        $this->assertDatabaseHas('inventory_transactions', [
+            'variant_id' => $this->variant->id,
+            'quantity_change' => 5,
+            'transaction_type' => InventoryTransactionType::Restock->value,
+        ]);
+    }
+
     public function test_it_prevents_stock_from_going_negative(): void
     {
         $this->actingAs($this->user)
-            ->postJson('/api/stock/adjustments', [
+            ->postJson('/api/inventory/adjust', [
                 'variant_id' => $this->variant->id,
                 'quantity_change' => -11,
-                'reason' => 'sale',
+                'transaction_type' => InventoryTransactionType::Sale->value,
             ])
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['quantity_change']);
@@ -90,25 +138,26 @@ class StockApiTest extends TestCase
             'stock_quantity' => 10,
         ]);
 
-        $this->assertDatabaseCount('stock_adjustments', 0);
+        $this->assertDatabaseCount('inventory_transactions', 0);
     }
 
-    public function test_it_returns_adjustment_history(): void
+    public function test_it_returns_transaction_history(): void
     {
-        $this->variant->adjustments()->create([
+        $this->variant->transactions()->create([
             'quantity_change' => -3,
-            'reason' => 'sale',
+            'transaction_type' => InventoryTransactionType::Sale->value,
             'user_id' => $this->user->id,
         ]);
-        $this->variant->adjustments()->create([
+        $this->variant->transactions()->create([
             'quantity_change' => 5,
-            'reason' => 'purchase',
+            'transaction_type' => InventoryTransactionType::Restock->value,
             'user_id' => $this->user->id,
         ]);
 
         $this->actingAs($this->user)
-            ->getJson("/api/stock/{$this->variant->id}/history")
+            ->getJson("/api/variants/{$this->variant->id}/transactions")
             ->assertOk()
-            ->assertJsonCount(2, 'data');
+            ->assertJsonCount(2, 'data')
+            ->assertJsonPath('data.0.transaction_type', InventoryTransactionType::Restock->value);
     }
 }

@@ -220,7 +220,16 @@
                             :error-messages="adjustErrors('quantity_change')"
                             class="mb-2"
                         />
+                        <v-select
+                            v-model="adjustForm.transaction_type"
+                            :items="transactionTypeOptions"
+                            label="Transaction type"
+                            required
+                            :error-messages="adjustErrors('transaction_type')"
+                            class="mb-2"
+                        />
                         <v-combobox
+                            v-if="adjustForm.transaction_type === 'MANUAL_ADJUSTMENT'"
                             v-model="adjustForm.reason"
                             :items="reasonOptions"
                             label="Reason"
@@ -284,9 +293,14 @@
                                 <span class="text-body-small text-medium-emphasis">{{ new Date(entry.created_at).toLocaleString() }}</span>
                             </div>
                             <div class="font-weight-medium mt-1">{{ entry.reason }}</div>
-                            <div class="text-body-small text-medium-emphasis mt-1">
-                                by {{ entry.user?.name ?? 'Unknown' }}
-                                <template v-if="entry.notes">— {{ entry.notes }}</template>
+                            <div class="d-flex align-center justify-space-between ga-2 mt-1">
+                                <v-chip size="x-small" variant="flat" class="stitch-pill bg-canvas-tint text-on-surface-variant">
+                                    {{ transactionTypeLabel(entry.transaction_type) }}
+                                </v-chip>
+                                <span class="text-body-small text-medium-emphasis">
+                                    by {{ entry.user?.name ?? 'Unknown' }}
+                                    <template v-if="entry.notes">— {{ entry.notes }}</template>
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -317,6 +331,14 @@ const headers = [
 ];
 
 const reasonOptions = ['initial', 'purchase', 'sale', 'damaged', 'adjustment', 'return'];
+const transactionTypeOptions = ['SALE', 'RESTOCK', 'MANUAL_ADJUSTMENT'];
+
+const transactionTypeLabels = {
+    SALE: 'Sale',
+    RESTOCK: 'Restock',
+    MANUAL_ADJUSTMENT: 'Manual adjustment',
+    ORDER_CANCELLATION: 'Order cancellation',
+};
 
 const lowStockThreshold = 5;
 
@@ -331,7 +353,7 @@ let loadSequence = 0;
 const adjustDialog = ref({ show: false, item: null });
 const adjustErrorBag = ref({});
 const adjusting = ref(false);
-const adjustForm = reactive({ quantity_change: 0, reason: '', notes: '' });
+const adjustForm = reactive({ quantity_change: 0, transaction_type: 'MANUAL_ADJUSTMENT', reason: '', notes: '' });
 
 const historyDialog = ref({ show: false, item: null });
 const history = ref([]);
@@ -401,6 +423,7 @@ function onOptions({ page, itemsPerPage }) {
 function openAdjust(item) {
     adjustErrorBag.value = {};
     adjustForm.quantity_change = 0;
+    adjustForm.transaction_type = 'MANUAL_ADJUSTMENT';
     adjustForm.reason = '';
     adjustForm.notes = '';
     adjustDialog.value = { show: true, item };
@@ -410,11 +433,16 @@ function adjustErrors(key) {
     return adjustErrorBag.value[key] ?? [];
 }
 
-async function performAdjust(item, quantityChange, reason, notes) {
-    await http.post('/api/stock/adjustments', {
+function transactionTypeLabel(type) {
+    return transactionTypeLabels[type] ?? type;
+}
+
+async function performAdjust(item, quantityChange, transactionType, reason, notes) {
+    await http.post('/api/inventory/adjust', {
         variant_id: item.id,
         quantity_change: quantityChange,
-        reason: reason ?? 'adjustment',
+        transaction_type: transactionType,
+        reason: reason ?? null,
         notes: notes ?? null,
     });
 
@@ -422,7 +450,7 @@ async function performAdjust(item, quantityChange, reason, notes) {
 }
 
 async function quickAdjust(item, delta) {
-    await performAdjust(item, delta, 'adjustment', null);
+    await performAdjust(item, delta, 'MANUAL_ADJUSTMENT', 'adjustment', null);
 }
 
 async function submitAdjust() {
@@ -433,6 +461,7 @@ async function submitAdjust() {
         await performAdjust(
             adjustDialog.value.item,
             adjustForm.quantity_change,
+            adjustForm.transaction_type,
             adjustForm.reason,
             adjustForm.notes,
         );
@@ -449,7 +478,7 @@ async function openHistory(item) {
     historyDialog.value = { show: true, item };
     history.value = [];
 
-    const data = await http.get(`/api/stock/${item.id}/history?per_page=50`);
+    const data = await http.get(`/api/variants/${item.id}/transactions?per_page=50`);
 
     history.value = data.data;
 }

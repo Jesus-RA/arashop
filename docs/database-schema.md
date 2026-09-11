@@ -1,7 +1,7 @@
 # Arashop — Database Schema
 
 Current database structure as defined by the committed migrations
-(`2026-09-07`).
+(`2026-09-11`).
 
 ## ER Diagram
 
@@ -37,13 +37,37 @@ erDiagram
         timestamp deleted_at "soft delete"
     }
 
-    stock_adjustments {
+    inventory_transactions {
         bigint id PK
         bigint variant_id FK
         integer quantity_change
-        string reason
+        string transaction_type "SALE | RESTOCK | MANUAL_ADJUSTMENT | ORDER_CANCELLATION"
+        bigint reference_id "orders.id for SALE / ORDER_CANCELLATION"
+        string reason "required for MANUAL_ADJUSTMENT"
         text notes
         bigint user_id FK
+        timestamp created_at "append-only, no updated_at"
+    }
+
+    orders {
+        bigint id PK
+        string order_number UK "ORD-0001"
+        string status "default: pending"
+        decimal total_amount "10,2"
+        bigint user_id FK
+        timestamp created_at
+        timestamp updated_at
+        timestamp deleted_at "soft delete"
+    }
+
+    order_items {
+        bigint id PK
+        bigint order_id FK
+        bigint variant_id FK "RESTRICT on delete"
+        unsignedInteger quantity
+        decimal unit_price_mxn "10,2 snapshot"
+        decimal unit_cost_usd "10,2 snapshot"
+        decimal subtotal "10,2"
         timestamp created_at
         timestamp updated_at
     }
@@ -131,14 +155,18 @@ erDiagram
 
     %% -------------------------------------------------- relations
     products ||--o{ product_variants : "has variants / ON DELETE CASCADE"
-    product_variants ||--o{ stock_adjustments : "stock ledger / ON DELETE CASCADE"
-    users o|--o{ stock_adjustments : "recorded by / ON DELETE SET NULL"
+    product_variants ||--o{ inventory_transactions : "stock ledger / ON DELETE CASCADE"
+    orders ||--o{ order_items : "line items / ON DELETE CASCADE"
+    order_items }o--|| product_variants : "snapshot source / ON DELETE RESTRICT"
+    orders o|--o{ inventory_transactions : "SALE / ORDER_CANCELLATION via reference_id"
+    users o|--o{ inventory_transactions : "recorded by / ON DELETE SET NULL"
     users o|--o{ sessions : "session owner / soft link, no FK"
 ```
 
 ## Notes
 
-- **Domain tables**: `products`, `product_variants`, `stock_adjustments`, `settings`.
+- **Domain tables**: `products`, `product_variants`, `inventory_transactions`, `orders`,
+  `order_items`, `settings`.
 - **Auth tables**: `users`, `sessions`, `password_reset_tokens` (Laravel default, from the
   `0001_01_01_000000` migration).
 - **Framework tables**: `cache`, `cache_locks`, `jobs`, `job_batches`, `failed_jobs`
@@ -146,4 +174,11 @@ erDiagram
 - `products.sku` and `settings.key` are unique; `settings.value` stores the dotted-key
   config (e.g. `fx.usd_to_mxn`, `pricing.margin_percent`) as JSON.
 - `product_variants.attributes` is free-form JSON (`key` → `value`).
-- Soft deletes are enabled on `products` and `product_variants` (`deleted_at`).
+- `inventory_transactions` is an append-only ledger: `created_at` only, no `updated_at`.
+  `quantity_change` is positive (restock/cancellation) or negative (sale), the transaction
+  type is a string enum, and `reason` is mandated for `MANUAL_ADJUSTMENT`.
+- `order_items.unit_price_mxn` / `unit_cost_usd` are immutable snapshots captured at
+  checkout, so later price edits never rewrite order history.
+- Soft deletes are enabled on `products`, `product_variants`, and `orders` (`deleted_at`).
+  `order_items.variant_id` uses `ON DELETE RESTRICT` so variants with order history can
+  never be hard-deleted.

@@ -273,7 +273,7 @@
                                 {{ entry.quantity_change >= 0 ? '+' : '' }}{{ entry.quantity_change }} units
                             </v-chip>
                         </td>
-                        <td class="px-4 py-3 text-body-small text-medium-emphasis">{{ entry.reason }}</td>
+                        <td class="px-4 py-3 text-body-small text-medium-emphasis">{{ entry.reason ?? entry.typeLabel }}</td>
                         <td class="px-4 py-3 text-right tabular-nums text-body-medium font-weight-semibold">{{ entry.balance }} in stock</td>
                     </tr>
                 </tbody>
@@ -299,6 +299,17 @@ const stockRows = ref([]);
 const recentAdjustments = ref([]);
 
 const lowStockThreshold = 5;
+
+function transactionTypeLabel(type) {
+    const labels = {
+        SALE: 'Sale',
+        RESTOCK: 'Restock',
+        MANUAL_ADJUSTMENT: 'Manual adjustment',
+        ORDER_CANCELLATION: 'Order cancellation',
+    };
+
+    return labels[type] ?? type;
+}
 
 const opportunities = computed(() =>
     [...stockRows.value]
@@ -374,7 +385,7 @@ async function load() {
     totalResaleMxn.value = stockRows.value.reduce((sum, row) => sum + (Number(row.price_mxn) || 0), 0);
 
     const ledger = await Promise.allSettled(
-        stockRows.value.slice(0, 4).map((row) => http.get(`/api/stock/${row.id}/history?per_page=1`)),
+        stockRows.value.slice(0, 4).map((row) => http.get(`/api/variants/${row.id}/transactions?per_page=1`)),
     );
 
     recentAdjustments.value = ledger
@@ -387,6 +398,7 @@ async function load() {
                 user: entry.user,
                 quantity_change: entry.quantity_change,
                 reason: entry.reason,
+                typeLabel: transactionTypeLabel(entry.transaction_type),
                 product_name: stockRows.value[index].product_name,
                 balance: stockRows.value[index].stock_quantity,
             };

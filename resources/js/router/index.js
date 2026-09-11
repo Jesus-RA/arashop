@@ -45,6 +45,21 @@ const routes = [
                 component: () => import('../pages/Stock/StockPage.vue'),
             },
             {
+                path: 'orders',
+                name: 'orders.index',
+                component: () => import('../pages/Orders/OrdersListPage.vue'),
+            },
+            {
+                path: 'orders/new',
+                name: 'orders.create',
+                component: () => import('../pages/Orders/OrderCreatePage.vue'),
+            },
+            {
+                path: 'orders/:id',
+                name: 'orders.show',
+                component: () => import('../pages/Orders/OrderDetailPage.vue'),
+            },
+            {
                 path: 'pricing',
                 name: 'pricing.index',
                 component: () => import('../pages/Pricing/PricingPage.vue'),

@@ -2,7 +2,6 @@
 
 namespace App\Products\Controllers;
 
-use App\Inventory\Actions\ApplyStockAdjustment;
 use App\Products\Actions\ImportProducts;
 use App\Products\Models\Product;
 use App\Products\Requests\ImportProductsRequest;
@@ -39,11 +38,9 @@ class ProductController
 
     public function store(StoreProductRequest $request): ProductResource
     {
-        $product = Product::create($request->safe()->except('variants'));
+        $product = Product::create($request->validated());
 
-        $this->createVariants($product, $request->validated('variants'));
-
-        return new ProductResource($product->load('variants'));
+        return new ProductResource($product);
     }
 
     public function show(Product $product): ProductResource
@@ -55,11 +52,9 @@ class ProductController
 
     public function update(UpdateProductRequest $request, Product $product): ProductResource
     {
-        $product->update($request->safe()->except(['variants']));
+        $product->update($request->validated());
 
-        $this->syncVariants($product, $request->validated('variants'));
-
-        return new ProductResource($product->load('variants'));
+        return new ProductResource($product);
     }
 
     public function import(ImportProductsRequest $request): JsonResponse
@@ -81,73 +76,5 @@ class ProductController
         $product->delete();
 
         return response()->json(['ok' => true], 200);
-    }
-
-    /**
-     * @param  array<int, array<string, mixed>>  $variants
-     */
-    private function createVariants(Product $product, array $variants): void
-    {
-        $applyStockAdjustment = app(ApplyStockAdjustment::class);
-
-        foreach ($variants as $variantData) {
-            $stock = (int) ($variantData['stock_quantity'] ?? 0);
-
-            $variant = $product->variants()->create([
-                'sku' => $variantData['sku'] ?? null,
-                'name' => $variantData['name'],
-                'attributes' => $variantData['attributes'] ?? null,
-                'cost_usd' => $variantData['cost_usd'] ?? null,
-                'price_mxn' => $variantData['price_mxn'] ?? null,
-                'stock_quantity' => 0,
-            ]);
-
-            if ($stock > 0) {
-                $applyStockAdjustment->handle($variant, $stock, 'initial', 'Initial stock', auth()->user());
-            }
-        }
-    }
-
-    /**
-     * @param  array<int, array<string, mixed>>  $variants
-     */
-    private function syncVariants(Product $product, array $variants): void
-    {
-        $sentVariantIds = collect($variants)
-            ->pluck('id')
-            ->filter()
-            ->map(fn ($id) => (int) $id);
-
-        $product->variants()
-            ->whereNotIn('id', $sentVariantIds)
-            ->get()
-            ->each->delete();
-
-        foreach ($variants as $variantData) {
-            if (! empty($variantData['id'])) {
-                $variant = $product->variants()->find($variantData['id']);
-
-                if ($variant !== null) {
-                    $variant->update([
-                        'sku' => $variantData['sku'] ?? null,
-                        'name' => $variantData['name'],
-                        'attributes' => $variantData['attributes'] ?? null,
-                        'cost_usd' => $variantData['cost_usd'] ?? null,
-                        'price_mxn' => $variantData['price_mxn'] ?? null,
-                    ]);
-
-                    continue;
-                }
-            }
-
-            $product->variants()->create([
-                'sku' => $variantData['sku'] ?? null,
-                'name' => $variantData['name'],
-                'attributes' => $variantData['attributes'] ?? null,
-                'cost_usd' => $variantData['cost_usd'] ?? null,
-                'price_mxn' => $variantData['price_mxn'] ?? null,
-                'stock_quantity' => 0,
-            ]);
-        }
     }
 }

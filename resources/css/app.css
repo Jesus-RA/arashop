@@ -170,8 +170,7 @@ body {
 }
 
 
-.required .v-label .v-field-label::after {
-    content: '*';
+.required .v-label::after {
+    content: ' *';
     color: red;
-    display: block;
 }

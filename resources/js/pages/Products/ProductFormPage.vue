@@ -59,22 +59,31 @@
 
                 <v-col cols="12" md="8">
                     <v-card class="rounded-lg">
-                        <v-card-title class="d-flex align-center justify-space-between ga-2 p-4 border-b-sm border-warm">
+                        <v-card-title class="d-flex align-center justify-space-between ga-2 p-4">
                             <div class="d-flex align-center ga-3">
                                 <div class="stitch-kpi-icon rounded-lg bg-surface-mint-subtle">
-                                    <v-icon icon="mdi-variant" color="mint-deep" size="18" />
+                                    <v-icon icon="mdi-tune" color="mint-deep" size="18" />
                                 </div>
                                 <div>
-                                    <h2 class="text-body-large font-weight-bold mb-0">Pricing &amp; Inventory Matrix</h2>
-                                    <p class="text-body-small text-medium-emphasis mb-0">Cost, resale and stock per variant</p>
+                                    <h2 class="text-body-large font-weight-bold my-0">Pricing &amp; Inventory Matrix</h2>
+                                    <p class="text-body-small text-medium-emphasis my-0">Cost, resale and stock per variant</p>
                                 </div>
                             </div>
-                            <v-btn color="primary" variant="tonal" size="small" prepend-icon="mdi-plus" @click="addVariant">
+                            <v-btn color="primary" variant="tonal" size="small" prepend-icon="mdi-plus" :disabled="!productId" @click="openAddVariant">
                                 Add variant
                             </v-btn>
                         </v-card-title>
 
                         <v-card-text>
+                            <v-alert
+                                v-if="!productId"
+                                type="warning"
+                                variant="tonal"
+                                density="compact"
+                                class="mb-3"
+                            >
+                                Save the product first, then add its variants.
+                            </v-alert>
                             <v-data-table-virtual
                                 :items="form.variants"
                                 :headers="variantColumns"
@@ -84,91 +93,60 @@
                                 no-data-text="No variants yet"
                                 class="stitch-table"
                             >
-                                <template #item.name="{ index }">
-                                    <v-text-field
-                                        v-model.trim="form.variants[index].name"
-                                        label="Variant name"
-                                        density="compact"
-                                        hide-details="auto"
-                                        :rules="[required('Variant name is required')]"
-                                    />
+                                <template #item.name="{ item }">
+                                    <span class="font-weight-medium">{{ item.name }}</span>
                                 </template>
 
-                                <template #item.attributes="{ index }">
-                                    <div
-                                        v-for="(attribute, attrIndex) in form.variants[index].attributes"
-                                        :key="attrIndex"
-                                        class="d-flex ga-2 mb-1"
+                                <template #item.attributes="{ item }">
+                                    <template v-if="item.attributes.length">
+                                        <v-chip
+                                            v-for="(attribute, i) in item.attributes"
+                                            :key="i"
+                                            size="x-small"
+                                            variant="flat"
+                                            class="stitch-pill bg-canvas-tint text-on-surface-variant me-1 mb-1"
+                                        >
+                                            {{ attribute.key }}: {{ attribute.value }}
+                                        </v-chip>
+                                    </template>
+                                    <span v-else class="text-body-small text-medium-emphasis">—</span>
+                                </template>
+
+                                <template #item.cost_usd="{ item }">
+                                    <span class="tabular-nums">{{ formatUsd(item.cost_usd) }}</span>
+                                </template>
+
+                                <template #item.price_mxn="{ item }">
+                                    <span class="tabular-nums font-weight-semibold">{{ formatMxn(item.price_mxn) }}</span>
+                                </template>
+
+                                <template #item.stock_quantity="{ item }">
+                                    <v-chip
+                                        size="x-small"
+                                        variant="flat"
+                                        class="stitch-pill"
+                                        :class="item.stock_quantity === 0 ? 'bg-surface-rose-subtle text-rose-deep' : 'bg-surface-mint-subtle text-mint-deep'"
                                     >
-                                        <v-text-field
-                                            v-model.trim="attribute.key"
-                                            label="Attribute"
-                                            density="compact"
-                                            hide-details="auto"
-                                            style="max-width: 130px"
-                                        />
-                                        <v-text-field
-                                            v-model.trim="attribute.value"
-                                            label="Value"
-                                            density="compact"
-                                            hide-details="auto"
-                                            style="max-width: 130px"
-                                            @keydown.enter.prevent
+                                        {{ item.stock_quantity }}
+                                    </v-chip>
+                                </template>
+
+                                <template #item.actions="{ item }">
+                                    <div class="d-flex align-center gc-1">
+                                        <v-btn
+                                            icon="mdi-pencil-outline"
+                                            size="small"
+                                            variant="text"
+                                            @click="openEditVariant(item)"
                                         />
                                         <v-btn
-                                            icon="mdi-close"
-                                            size="x-small"
+                                            icon="mdi-delete-outline"
+                                            size="small"
                                             variant="text"
-                                            @click="form.variants[index].attributes.splice(attrIndex, 1)"
+                                            color="error"
+                                            @click="confirmDeleteVariant(item)"
                                         />
                                     </div>
-                                    <v-btn size="x-small" variant="text" prepend-icon="mdi-plus" @click="form.variants[index].attributes.push({ key: '', value: '' })">
-                                        Attribute
-                                    </v-btn>
-                                </template>
-
-                                <template #item.cost_usd="{ index }">
-                                    <v-text-field
-                                        v-model.number="form.variants[index].cost_usd"
-                                        label="Cost USD"
-                                        type="number"
-                                        density="compact"
-                                        hide-details="auto"
-                                        style="max-width: 150px"
-                                    />
-                                </template>
-
-                                <template #item.price_mxn="{ index }">
-                                    <v-text-field
-                                        v-model.number="form.variants[index].price_mxn"
-                                        label="Price MXN"
-                                        type="number"
-                                        density="compact"
-                                        hide-details="auto"
-                                        style="max-width: 150px"
-                                    />
-                                </template>
-
-                                <template #item.stock_quantity="{ index }">
-                                    <v-text-field
-                                        v-model.number="form.variants[index].stock_quantity"
-                                        label="Qty"
-                                        type="number"
-                                        density="compact"
-                                        hide-details="auto"
-                                        style="max-width: 120px"
-                                    />
-                                </template>
-
-                                <template #item.actions="{ index }">
-                                    <v-btn
-                                        icon="mdi-delete-outline"
-                                        size="small"
-                                        variant="text"
-                                        color="error"
-                                        :disabled="form.variants.length === 1"
-                                        @click="form.variants.splice(index, 1)"
-                                    />
                                 </template>
                             </v-data-table-virtual>
                         </v-card-text>
@@ -194,14 +172,41 @@
                 </div>
             </div>
         </v-form>
+
+        <ProductVariantForm
+            v-model="variantDialog"
+            :product-id="productId"
+            :variant="editingVariant"
+            @saved="onSavedVariant"
+        />
+
+        <v-dialog v-model="deleteDialog" max-width="420">
+            <v-card class="pa-2">
+                <v-card-text class="text-center pt-6">
+                    <div class="mx-auto mb-4 d-flex align-center justify-center rounded-circle bg-error-container delete-icon">
+                        <v-icon icon="mdi-delete-forever" color="status-error" size="28" />
+                    </div>
+                    <h3 class="text-body-large font-weight-bold">Delete variant</h3>
+                    <p class="text-body-medium text-medium-emphasis mb-0 mt-2">
+                        Remove "{{ deleteVariant?.name }}" from this product? This cannot be undone.
+                    </p>
+                </v-card-text>
+                <v-card-actions class="justify-end pb-4 pe-4">
+                    <v-btn variant="tonal" @click="deleteVariant = null">Cancel</v-btn>
+                    <v-btn color="error" :loading="deleting" :disabled="deleting" @click="discardVariant">Delete</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </div>
 </template>
 
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import ProductVariantForm from '../../components/ProductVariantForm.vue';
 import http from '../../api/http';
 import { useUiStore } from '../../store/ui';
+import { formatMxn, formatUsd } from '../../utils/format';
 import { required } from '../../utils/validation';
 
 const route = useRoute();
@@ -217,27 +222,91 @@ const statusOptions = [
 ];
 
 const saving = ref(false);
+const deleting = ref(false);
+const variantDialog = ref(false);
+const editingVariant = ref(null);
+const deleteVariant = ref(null);
+const productId = ref(null);
+
+const deleteDialog = computed({
+    get: () => deleteVariant.value !== null,
+    set: (value) => {
+        if (!value) {
+            deleteVariant.value = null;
+        }
+    },
+});
 
 const form = reactive({
     name: '',
     description: '',
     status: 'draft',
-    variants: [newVariant()],
+    variants: [],
 });
 
-function newVariant() {
-    return {
-        id: null,
-        name: '',
-        attributes: [],
-        cost_usd: null,
-        price_mxn: null,
-        stock_quantity: 0,
-    };
+function openAddVariant() {
+    editingVariant.value = null;
+    variantDialog.value = true;
 }
 
-function addVariant() {
-    form.variants.push(newVariant());
+function openEditVariant(variant) {
+    editingVariant.value = variant;
+    variantDialog.value = true;
+}
+
+function onSavedVariant(data) {
+    editingVariant.value = null;
+
+    const index = form.variants.findIndex((variant) => variant.id === data.id);
+
+    const normalized = {
+        id: data.id,
+        name: data.name,
+        attributes: Object.entries(data.attributes ?? {}).map(([key, value]) => ({ key, value })),
+        cost_usd: data.cost_usd,
+        price_mxn: data.price_mxn,
+        stock_quantity: data.stock_quantity,
+    };
+
+    if (index !== -1) {
+        form.variants.splice(index, 1, normalized);
+
+        return;
+    }
+
+    form.variants.push(normalized);
+}
+
+function confirmDeleteVariant(variant) {
+    deleteVariant.value = variant;
+}
+
+async function discardVariant() {
+    const target = deleteVariant.value;
+
+    if (!target) {
+        return;
+    }
+
+    deleting.value = true;
+
+    try {
+        await http.delete(`/api/products/${productId.value}/variants/${target.id}`);
+
+        const index = form.variants.findIndex((variant) => variant.id === target.id);
+
+        if (index !== -1) {
+            form.variants.splice(index, 1);
+        }
+
+        uiStore.notify('Variant deleted');
+    } catch (error) {
+        const message = Object.values(error.data?.errors ?? {}).flat()[0] ?? 'Could not delete the variant.';
+        uiStore.notify(message, { color: 'error', timeout: 5000 });
+    } finally {
+        deleting.value = false;
+        deleteVariant.value = null;
+    }
 }
 
 const variantColumns = computed(() => [
@@ -245,22 +314,14 @@ const variantColumns = computed(() => [
     { key: 'attributes', title: 'Attributes', sortable: false, width: '340px' },
     { key: 'cost_usd', title: 'Cost (USD)', sortable: false, width: '140px' },
     { key: 'price_mxn', title: 'Price (MXN)', sortable: false, width: '140px' },
-    ...(!isEdit.value ? [{ key: 'stock_quantity', title: 'Qty', sortable: false, width: '120px' }] : []),
-    { key: 'actions', title: '', sortable: false, width: '56px', align: 'end' },
+    { key: 'stock_quantity', title: 'Qty', sortable: false, width: '120px' },
+    { key: 'actions', title: 'Actions', sortable: false, width: '96px', align: 'center' },
 ]);
-
-function attributesToObject(attributes) {
-    return attributes
-        .filter((attribute) => attribute.key.trim() !== '')
-        .reduce((acc, attribute) => {
-            acc[attribute.key.trim()] = attribute.value;
-            return acc;
-        }, {});
-}
 
 async function loadProduct() {
     const { data } = await http.get(`/api/products/${route.params.id}`);
 
+    productId.value = data.id;
     form.name = data.name;
     form.description = data.description ?? '';
     form.status = data.status;
@@ -281,23 +342,21 @@ async function save() {
         name: form.name,
         description: form.description,
         status: form.status,
-        variants: form.variants.map((variant) => ({
-            ...(variant.id ? { id: variant.id } : {}),
-            name: variant.name,
-            attributes: attributesToObject(variant.attributes),
-            cost_usd: variant.cost_usd,
-            price_mxn: variant.price_mxn,
-            ...(isEdit.value ? {} : { stock_quantity: variant.stock_quantity }),
-        })),
     };
 
     try {
-        const result = isEdit.value
-            ? await http.put(`/api/products/${route.params.id}`, payload)
-            : await http.post('/api/products', payload);
+        if (productId.value) {
+            await http.put(`/api/products/${productId.value}`, payload);
 
-        uiStore.notify(isEdit.value ? 'Product updated' : 'Product created');
-        router.push({ name: 'products.show', params: { id: result.data.id } });
+            uiStore.notify('Product updated');
+        } else {
+            const { data } = await http.post('/api/products', payload);
+
+            productId.value = data.id;
+            router.replace({ name: 'products.edit', params: { id: data.id } });
+
+            uiStore.notify('Product created — you can now add variants');
+        }
     } catch (error) {
         const message = Object.values(error.data?.errors ?? {}).flat()[0] ?? 'Could not save the product.';
         uiStore.notify(message, { color: 'error', timeout: 5000 });
@@ -327,5 +386,10 @@ onMounted(() => {
     justify-content: space-between;
     flex-wrap: wrap;
     background: rgb(var(--v-theme-surface-card));
+}
+
+.delete-icon {
+    width: 48px;
+    height: 48px;
 }
 </style>

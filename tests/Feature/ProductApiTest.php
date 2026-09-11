@@ -61,85 +61,49 @@ class ProductApiTest extends TestCase
             ->assertJsonCount(1, 'data');
     }
 
-    public function test_it_creates_a_product_with_variant_and_initial_stock(): void
+    public function test_it_creates_a_product_without_variants(): void
     {
         $response = $this->actingAs($this->user)
             ->postJson('/api/products', [
                 'name' => 'New Tee',
-                'sku' => 'ARA-NEW-1',
-                'status' => ProductStatus::Active->value,
-                'variants' => [
-                    [
-                        'name' => 'White / M',
-                        'sku' => 'ARA-NEW-1-WM',
-                        'cost_usd' => 12.50,
-                        'price_mxn' => 320,
-                        'stock_quantity' => 10,
-                        'attributes' => ['Color' => 'White', 'Size' => 'M'],
-                    ],
-                ],
+                'status' => ProductStatus::Draft->value,
             ])
             ->assertCreated();
 
-        $product = Product::query()->findOrFail($response->json('data.id'));
-
-        $this->assertDatabaseHas('product_variants', [
-            'product_id' => $product->id,
-            'name' => 'White / M',
-            'stock_quantity' => 10,
+        $this->assertDatabaseHas('products', [
+            'id' => $response->json('data.id'),
+            'name' => 'New Tee',
+            'status' => ProductStatus::Draft->value,
         ]);
 
-        $variant = $product->variants()->first();
-
-        $this->assertDatabaseHas('stock_adjustments', [
-            'variant_id' => $variant->id,
-            'quantity_change' => 10,
-            'reason' => 'initial',
-        ]);
+        $this->assertDatabaseCount('product_variants', 0);
     }
 
-    public function test_it_validates_variant_requirements(): void
+    public function test_it_requires_a_product_name(): void
     {
         $this->actingAs($this->user)
             ->postJson('/api/products', [
-                'name' => 'Missing Variants',
                 'status' => ProductStatus::Draft->value,
-                'variants' => [],
             ])
             ->assertUnprocessable()
-            ->assertJsonValidationErrors(['variants']);
+            ->assertJsonValidationErrors(['name']);
     }
 
-    public function test_it_updates_a_product_price_without_touching_stock(): void
+    public function test_it_updates_product_details_only(): void
     {
         $product = Product::factory()->create();
-        $variant = $product->variants()->create(
-            ProductVariant::factory()->make(['stock_quantity' => 7])->toArray(),
-        );
 
         $this->actingAs($this->user)
             ->putJson("/api/products/{$product->id}", [
                 'name' => 'Renamed Product',
                 'status' => ProductStatus::Active->value,
-                'variants' => [
-                    [
-                        'id' => $variant->id,
-                        'name' => 'White / M',
-                        'price_mxn' => 350,
-                    ],
-                ],
             ])
             ->assertOk();
 
         $this->assertDatabaseHas('products', [
             'id' => $product->id,
             'name' => 'Renamed Product',
-        ]);
-
-        $this->assertDatabaseHas('product_variants', [
-            'id' => $variant->id,
-            'price_mxn' => 350,
-            'stock_quantity' => 7,
+            'status' => ProductStatus::Active->value,
         ]);
     }
 

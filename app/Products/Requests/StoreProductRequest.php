@@ -24,14 +24,6 @@ class StoreProductRequest extends FormRequest
             'sku' => ['nullable', 'string', 'max:255', 'unique:products,sku'],
             'status' => ['required', Rule::enum(ProductStatus::class)],
             'image_path' => ['nullable', 'string', 'max:255'],
-            'variants' => ['required', 'array', 'min:1'],
-            'variants.*.sku' => ['nullable', 'string', 'max:255'],
-            'variants.*.name' => ['required', 'string', 'max:255'],
-            'variants.*.attributes' => ['nullable', 'array'],
-            'variants.*.attributes.*' => ['nullable', 'string', 'max:255'],
-            'variants.*.cost_usd' => ['nullable', 'numeric', 'min:0'],
-            'variants.*.price_mxn' => ['nullable', 'numeric', 'min:0'],
-            'variants.*.stock_quantity' => ['sometimes', 'integer', 'min:0'],
         ];
     }
 }

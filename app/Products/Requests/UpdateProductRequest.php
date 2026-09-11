@@ -24,14 +24,6 @@ class UpdateProductRequest extends FormRequest
             'sku' => ['nullable', 'string', 'max:255', Rule::unique('products', 'sku')->ignore($this->route('product'))],
             'status' => ['required', Rule::enum(ProductStatus::class)],
             'image_path' => ['nullable', 'string', 'max:255'],
-            'variants' => ['required', 'array', 'min:1'],
-            'variants.*.id' => ['nullable', 'integer'],
-            'variants.*.sku' => ['nullable', 'string', 'max:255'],
-            'variants.*.name' => ['required', 'string', 'max:255'],
-            'variants.*.attributes' => ['nullable', 'array'],
-            'variants.*.attributes.*' => ['nullable', 'string', 'max:255'],
-            'variants.*.cost_usd' => ['nullable', 'numeric', 'min:0'],
-            'variants.*.price_mxn' => ['nullable', 'numeric', 'min:0'],
         ];
     }
 }

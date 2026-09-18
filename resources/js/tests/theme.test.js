@@ -1,19 +1,10 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { defaults, getDefaultTheme, themes } from '../theme';
+import { themeConfig } from '../theme/theme.config';
+import { defaults, getDefaultTheme, themes } from '../theme/vuetify';
+
+const resolve = (value, themeName) => (typeof value === 'string' ? value : value?.[themeName]);
 
 describe('theme', () => {
-    const reserved = [
-        'primary',
-        'secondary',
-        'error',
-        'warning',
-        'success',
-        'info',
-        'surface',
-        'background',
-        'on-surface',
-    ];
-
     beforeEach(() => {
         localStorage.clear();
     });
@@ -23,26 +14,44 @@ describe('theme', () => {
         expect(themes.dark.dark).toBe(true);
     });
 
-    it('maps every reserved word to a color in both themes', () => {
-        for (const theme of [themes.light, themes.dark]) {
-            for (const word of reserved) {
-                expect(theme.colors[word], `${word} in ${theme.dark ? 'dark' : 'light'}`).toMatch(/^#[0-9a-f]{6}$/i);
+    it('maps every configured color into both themes', () => {
+        for (const name of ['light', 'dark']) {
+            for (const [color, value] of Object.entries(themeConfig.colors)) {
+                expect(themes[name].colors[color], `${color} in ${name}`).toBe(resolve(value, name));
             }
         }
     });
 
-    it('uses the Stitch rose primary in light mode', () => {
-        expect(themes.light.colors.primary).toBe('#c24566');
+    it('does not define a tertiary color', () => {
+        expect(themeConfig.colors.tertiary).toBeUndefined();
+        expect(themes.light.colors.tertiary).toBeUndefined();
     });
 
-    it('exposes the Stitch brand tokens as colors', () => {
-        for (const token of ['rose-deep', 'rose-pastel', 'mint-seafoam', 'mint-deep', 'border-warm', 'peach-warm', 'cream-champagne']) {
-            expect(themes.light.colors[token], token).toMatch(/^#[0-9a-f]{6}$/i);
+    it('exposes the custom premium semantic color', () => {
+        expect(themes.light.colors.premium).toMatch(/^#[0-9a-f]{6}$/i);
+        expect(themes.dark.colors.premium).toMatch(/^#[0-9a-f]{6}$/i);
+    });
+
+    it('merges configured structural colors into each theme', () => {
+        for (const name of ['light', 'dark']) {
+            for (const [token, value] of Object.entries(themeConfig[name]?.structural ?? {})) {
+                expect(themes[name].colors[token], `${token} in ${name}`).toBe(value);
+            }
         }
     });
 
-    it('nudges core components toward the Stitch look', () => {
-        expect(defaults.VCard).toEqual({ rounded: 'lg', elevation: 1 });
+    it('only exposes structural colors that are configured', () => {
+        expect(themes.light.colors['on-surface']).toBeUndefined();
+        expect(themes.dark.colors['on-surface']).toBeUndefined();
+    });
+
+    it('keeps validation errors distinguishable from the primary color in both themes', () => {
+        expect(themes.light.colors.error).not.toBe(themes.light.colors.primary);
+        expect(themes.dark.colors.error).not.toBe(themes.dark.colors.primary);
+    });
+
+    it('nudges core components toward the app look', () => {
+        expect(defaults.VCard).toEqual({ rounded: 'lg', elevation: 0 });
         expect(defaults.VTextField.variant).toBe('outlined');
         expect(defaults.VChip.rounded).toBe('pill');
     });

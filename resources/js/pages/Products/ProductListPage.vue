@@ -4,7 +4,7 @@
             <div>
                 <div class="d-flex align-center ga-2 mb-1">
                     <span class="stitch-label">Catalog Inventory</span>
-                    <v-chip size="small" variant="flat" class="text-body-small font-weight-semibold bg-surface-rose-subtle text-rose-deep">US → MX Pipeline</v-chip>
+                    <v-chip size="small" variant="flat" class="text-body-small font-weight-semibold bg-pale-peach-lighten-1 text-primary">US → MX Pipeline</v-chip>
                 </div>
                 <h1 class="text-headline-small font-weight-bold mb-0">Products</h1>
                 <p class="text-body-medium text-medium-emphasis mb-0 mt-1">
@@ -28,18 +28,18 @@
                 </KpiCard>
             </v-col>
             <v-col cols="12" sm="6" lg="3">
-                <KpiCard title="Active Arbitrage Variants" icon="mdi-check-decagram" icon-color="mint-deep">
+                <KpiCard title="Active Arbitrage Variants" icon="mdi-check-decagram" icon-color="success">
                     {{ activeVariantCount }} Active
                 </KpiCard>
             </v-col>
             <v-col cols="12" sm="6" lg="3">
-                <KpiCard title="Low / Out of Stock" icon="mdi-alert" icon-color="status-warning">
-                    <span class="text-status-warning">{{ lowStockCount }} Alerts</span>
+                <KpiCard title="Low / Out of Stock" icon="mdi-alert" icon-color="warning">
+                    <span class="text-warning">{{ lowStockCount }} Alerts</span>
                 </KpiCard>
             </v-col>
             <v-col cols="12" sm="6" lg="3">
-                <KpiCard title="Avg. Mexico Margin" icon="mdi-trending-up" icon-color="mint-deep">
-                    <span class="text-mint-deep">{{ avgMargin.toFixed(1) }}%</span>
+                <KpiCard title="Avg. Mexico Margin" icon="mdi-trending-up" icon-color="success">
+                    <span class="text-success">{{ avgMargin.toFixed(1) }}%</span>
                 </KpiCard>
             </v-col>
         </v-row>
@@ -53,7 +53,7 @@
                         prepend-inner-icon="mdi-magnify"
                         clearable
                         hide-details
-                        density="compact"
+                        variant="filled"
                         class="search-field"
                         @update:model-value="load"
                     />
@@ -64,7 +64,7 @@
                             class="text-body-small font-weight-medium"
                             size="small"
                             variant="flat"
-                            :color="activeFilter === pill.value ? 'primary-container' : 'surface-container-high'"
+                            :color="activeFilter === pill.value ? 'primary' : 'surface-variant'"
                             @click="activeFilter = pill.value"
                         >
                             {{ pill.label }}
@@ -84,7 +84,7 @@
                 :loading="loading"
                 :items-length="total"
                 :items-per-page="perPage"
-                :items-per-page-options="[10, 20, 50]"
+                :items-per-page-options="[10, 25, 50, 75, 100]"
                 item-key="id"
                 density="comfortable"
                 :hide-default-footer="false"
@@ -110,8 +110,8 @@
                     >
                         <div class="d-flex align-center gc-2">
                             <span
-                                class="fx-dot rounded-circle"
-                                :style="{ background: statusDotColor(item.status) }"
+                                class="fx-dot"
+                                :class="statusDotColor(item.status)"
                             />
                             {{ statusLabel(item.status) }}
                         </div>
@@ -149,8 +149,8 @@
         <v-dialog v-model="deleteDialog.show" max-width="420">
             <v-card class="pa-2">
                 <v-card-text class="text-center pt-6">
-                    <div class="mx-auto mb-4 d-flex align-center justify-center rounded-circle bg-error-container delete-icon">
-                        <v-icon icon="mdi-delete-forever" color="status-error" size="28" />
+                    <div class="mx-auto mb-4 d-flex align-center justify-center rounded-circle bg-error-lighten-4 delete-icon">
+                        <v-icon icon="mdi-delete-forever" color="error" size="28" />
                     </div>
                     <h3 class="text-body-large font-weight-bold">Delete Cross-Border Product</h3>
                     <p class="text-body-medium text-medium-emphasis mb-0 mt-2">
@@ -240,20 +240,20 @@ function totalStockChip(quantity) {
     if (quantity <= 2) {
         return {
             icon: 'mdi-alert-octagon-outline',
-            classes: 'bg-surface-rose-subtle text-rose-deep',
+            classes: 'bg-red',
         };
     }
 
     if (quantity <= 5) {
         return {
             icon: 'mdi-alert-outline',
-            classes: 'bg-surface-cream-subtle text-status-warning',
+            classes: 'bg-warning-lighten-2',
         };
     }
 
     return {
         icon: 'mdi-check-circle-outline',
-        classes: 'bg-surface-mint-subtle text-mint-deep',
+        classes: 'bg-green-lighten-5',
     };
 }
 

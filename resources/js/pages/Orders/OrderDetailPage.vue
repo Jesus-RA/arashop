@@ -22,7 +22,7 @@
         <template v-if="order">
             <v-row class="mb-4">
                 <v-col cols="12" sm="6" lg="3">
-                    <KpiCard title="Total" icon="mdi-cash-multiple" icon-color="mint-deep">
+                    <KpiCard title="Total" icon="mdi-cash-multiple" icon-color="info">
                         {{ formatMxn(order.total_amount) }}
                     </KpiCard>
                 </v-col>
@@ -32,13 +32,13 @@
                     </KpiCard>
                 </v-col>
                 <v-col cols="12" sm="6" lg="3">
-                    <KpiCard title="Unit Cost" icon="mdi-currency-usd" icon-color="status-warning">
+                    <KpiCard title="Unit Cost" icon="mdi-currency-usd" icon-color="warning">
                         {{ formatUsd(unitCostTotal) }}
                     </KpiCard>
                 </v-col>
                 <v-col cols="12" sm="6" lg="3">
                     <KpiCard title="Margin" icon="mdi-trending-up" icon-color="primary">
-                        <span class="text-mint-deep">{{ margin.toFixed(1) }}%</span>
+                        <span class="text-info">{{ margin.toFixed(1) }}%</span>
                     </KpiCard>
                 </v-col>
             </v-row>
@@ -61,7 +61,7 @@
                         <v-btn
                             v-if="canMarkPaid"
                             variant="tonal"
-                            color="mint-deep"
+                            color="info"
                             prepend-icon="mdi-cash"
                             :loading="updating"
                             :disabled="updating"
@@ -87,8 +87,8 @@
             <v-card class="overflow-hidden rounded-lg">
                 <v-card-title class="d-flex align-center justify-space-between ga-2 p-4">
                     <div class="d-flex align-center ga-3">
-                        <div class="stitch-kpi-icon rounded-lg bg-surface-cream-subtle">
-                            <v-icon icon="mdi-receipt-text-outline" color="status-warning" size="18" />
+                        <div class="stitch-kpi-icon rounded-lg bg-warning-lighten-5">
+                            <v-icon icon="mdi-receipt-text-outline" color="warning" size="18" />
                         </div>
                         <div>
                             <h2 class="text-body-large font-weight-bold my-0">Order Lines</h2>
@@ -111,7 +111,7 @@
                                 :key="key"
                                 size="x-small"
                                 variant="flat"
-                                class="stitch-pill bg-canvas-tint text-on-surface-variant"
+                                class="stitch-pill bg-surface-light text-on-surface-variant"
                             >
                                 {{ key }}: {{ value }}
                             </v-chip>
@@ -136,8 +136,8 @@
         <v-dialog v-model="confirmCancel" max-width="420">
             <v-card class="pa-2">
                 <v-card-text class="text-center pt-6">
-                    <div class="mx-auto mb-4 d-flex align-center justify-center rounded-circle bg-error-container delete-icon">
-                        <v-icon icon="mdi-close-circle-outline" color="status-error" size="28" />
+                    <div class="mx-auto mb-4 d-flex align-center justify-center rounded-circle bg-error-lighten-4 delete-icon">
+                        <v-icon icon="mdi-close-circle-outline" color="error" size="28" />
                     </div>
                     <h3 class="text-body-large font-weight-bold">Cancel order</h3>
                     <p class="text-body-medium text-medium-emphasis mb-0 mt-2">

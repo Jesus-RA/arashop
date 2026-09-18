@@ -4,8 +4,8 @@
             <div>
                 <div class="d-flex align-center ga-2 mb-1">
                     <span class="stitch-label">Laredo Hub</span>
-                    <v-chip size="small" variant="flat" class="stitch-pill bg-surface-mint-subtle text-mint-deep">
-                        <span class="fx-dot me-1" style="background: rgb(var(--v-theme-status-success))" />
+                    <v-chip size="small" variant="flat" class="stitch-pill bg-info-lighten-5 text-info">
+                        <span class="fx-dot me-1" style="background: rgb(var(--v-theme-success))" />
                         Live Stock
                     </v-chip>
                 </div>
@@ -21,7 +21,7 @@
                 <v-card class="rounded-lg px-5 py-4">
                     <div class="d-flex align-center justify-space-between">
                         <span class="text-body-small text-medium-emphasis">Total Variants Monitored</span>
-                        <div class="stitch-kpi-icon rounded-lg bg-surface-rose-subtle">
+                        <div class="stitch-kpi-icon rounded-lg bg-primary-lighten-5">
                             <v-icon icon="mdi-variant" color="primary" size="18" />
                         </div>
                     </div>
@@ -32,19 +32,19 @@
                 <v-card class="rounded-lg px-5 py-4">
                     <div class="d-flex align-center justify-space-between">
                         <span class="text-body-small text-medium-emphasis">Units On Order</span>
-                        <div class="stitch-kpi-icon rounded-lg bg-surface-cream-subtle">
-                            <v-icon icon="mdi-truck-delivery" color="status-warning" size="18" />
+                        <div class="stitch-kpi-icon rounded-lg bg-warning-lighten-5">
+                            <v-icon icon="mdi-truck-delivery" color="warning" size="18" />
                         </div>
                     </div>
-                    <div class="text-title-large font-weight-bold mt-2 text-status-warning">0 <span class="text-body-small text-medium-emphasis">Pending freight</span></div>
+                    <div class="text-title-large font-weight-bold mt-2 text-warning">0 <span class="text-body-small text-medium-emphasis">Pending freight</span></div>
                 </v-card>
             </v-col>
             <v-col cols="12" sm="6" lg="3">
                 <v-card class="rounded-lg px-5 py-4">
                     <div class="d-flex align-center justify-space-between">
                         <span class="text-body-small text-medium-emphasis">Units in Portfolio</span>
-                        <div class="stitch-kpi-icon rounded-lg bg-surface-mint-subtle">
-                            <v-icon icon="mdi-warehouse" color="mint-deep" size="18" />
+                        <div class="stitch-kpi-icon rounded-lg bg-info-lighten-5">
+                            <v-icon icon="mdi-warehouse" color="info" size="18" />
                         </div>
                     </div>
                     <div class="text-title-large font-weight-bold mt-2 tabular-nums">{{ onHandTotal }} <span class="text-body-small text-medium-emphasis">On hand</span></div>
@@ -54,11 +54,11 @@
                 <v-card class="rounded-lg px-5 py-4">
                     <div class="d-flex align-center justify-space-between">
                         <span class="text-body-small text-medium-emphasis">Low-Stock Alerts</span>
-                        <div class="stitch-kpi-icon rounded-lg bg-surface-cream-subtle">
-                            <v-icon icon="mdi-alert" color="status-error" size="18" />
+                        <div class="stitch-kpi-icon rounded-lg bg-warning-lighten-5">
+                            <v-icon icon="mdi-alert" color="error" size="18" />
                         </div>
                     </div>
-                    <div class="text-title-large font-weight-bold mt-2 text-status-error">{{ lowStockCount }} <span class="text-body-small text-medium-emphasis">Below {{ lowStockThreshold }}</span></div>
+                    <div class="text-title-large font-weight-bold mt-2 text-error">{{ lowStockCount }} <span class="text-body-small text-medium-emphasis">Below {{ lowStockThreshold }}</span></div>
                 </v-card>
             </v-col>
         </v-row>
@@ -83,7 +83,7 @@
                             class="stitch-pill"
                             size="small"
                             variant="flat"
-                            :color="activeFilter === pill.value ? 'primary-container' : 'surface-container-high'"
+                            :color="activeFilter === pill.value ? 'primary' : 'surface-variant'"
                             @click="activeFilter = pill.value"
                         >
                             {{ pill.label }}
@@ -119,7 +119,7 @@
                         :key="key"
                         size="small"
                         variant="flat"
-                        class="stitch-pill bg-canvas-tint text-on-surface-variant me-1"
+                        class="stitch-pill bg-surface-light text-on-surface-variant me-1"
                     >
                         {{ key }}: {{ value }}
                     </v-chip>
@@ -166,7 +166,7 @@
                 <v-card-text class="pt-4 pb-0">
                     <div class="d-flex align-center justify-space-between mb-1">
                         <span class="stitch-label">Stock Adjustment</span>
-                        <v-chip size="small" variant="flat" class="stitch-pill bg-surface-mint-subtle text-mint-deep">Live Adjust</v-chip>
+                        <v-chip size="small" variant="flat" class="stitch-pill bg-info-lighten-5 text-info">Live Adjust</v-chip>
                     </div>
                     <h3 class="text-body-large font-weight-bold mb-4">Adjust Stock — {{ adjustDialog.item?.name }}</h3>
 
@@ -188,7 +188,7 @@
                         </div>
                     </div>
 
-                    <div class="preview-banner pa-4 mb-4 border-sm border-warm rounded-lg">
+                    <div class="preview-banner pa-4 mb-4 border-sm rounded-lg">
                         <div class="d-flex align-center justify-space-between">
                             <span class="text-body-small text-medium-emphasis">Current Stock</span>
                             <span class="text-title-large font-weight-bold tabular-nums">{{ adjustDialog.item?.stock_quantity }}</span>
@@ -197,35 +197,33 @@
                             <div>
                                 <div class="stitch-label mb-1">New Stock will be:</div>
                                 <div class="d-flex align-baseline ga-2">
-                                    <span class="text-headline-small font-weight-bold tabular-nums" :class="projectedStock < 0 ? 'text-status-error' : 'text-mint-deep'">
+                                    <span class="text-headline-small font-weight-bold tabular-nums" :class="projectedStock < 0 ? 'text-error' : 'text-info'">
                                         {{ projectedStock }}
                                     </span>
                                     <span class="text-body-small text-medium-emphasis">units on-hand</span>
                                 </div>
                             </div>
                             <div class="d-flex ga-2 align-center">
-                                <v-chip size="small" variant="flat" class="stitch-pill" :class="adjustForm.quantity_change >= 0 ? 'bg-surface-mint-subtle text-mint-deep' : 'bg-surface-rose-subtle text-rose-deep'">
+                                <v-chip size="small" variant="flat" class="stitch-pill" :class="adjustForm.quantity_change >= 0 ? 'bg-info-lighten-5 text-info' : 'bg-primary-lighten-5 text-primary'">
                                     {{ adjustForm.quantity_change >= 0 ? '+' : '' }}{{ adjustForm.quantity_change }} unit(s)
                                 </v-chip>
                             </div>
                         </div>
                     </div>
 
-                    <v-form @submit.prevent="submitAdjust">
+                    <v-form ref="adjustFormRef" @submit.prevent="submitAdjust">
                         <v-text-field
                             v-model.number="adjustForm.quantity_change"
                             label="Quantity change"
                             type="number"
-                            required
-                            :error-messages="adjustErrors('quantity_change')"
+                            :rules="adjustQuantityRules"
                             class="mb-2"
                         />
                         <v-select
                             v-model="adjustForm.transaction_type"
                             :items="transactionTypeOptions"
                             label="Transaction type"
-                            required
-                            :error-messages="adjustErrors('transaction_type')"
+                            :rules="[required('Transaction type is required')]"
                             class="mb-2"
                         />
                         <v-combobox
@@ -233,16 +231,25 @@
                             v-model="adjustForm.reason"
                             :items="reasonOptions"
                             label="Reason"
-                            required
-                            :error-messages="adjustErrors('reason')"
+                            :rules="[required('Reason is required')]"
                             class="mb-2"
                         />
                         <v-textarea
                             v-model.trim="adjustForm.notes"
                             label="Notes"
                             rows="2"
-                            :error-messages="adjustErrors('notes')"
                         />
+
+                        <v-alert
+                            v-if="submitError"
+                            type="error"
+                            variant="tonal"
+                            class="mt-2"
+                        >
+                            <ul class="mb-0 ps-4">
+                                <li v-for="(message, i) in submitError" :key="i">{{ message }}</li>
+                            </ul>
+                        </v-alert>
 
                         <v-alert v-if="projectedStock < 0" type="error" variant="tonal" class="mt-2">
                             Stock would drop below zero. Review the quantity before applying.
@@ -272,7 +279,7 @@
                 <v-card-text class="pt-4">
                     <div class="d-flex align-center justify-space-between mb-1">
                         <span class="stitch-label">Stock Ledger</span>
-                        <v-chip size="small" variant="flat" class="stitch-pill bg-surface-cream-subtle text-tertiary">Audit Trail</v-chip>
+                        <v-chip size="small" variant="flat" class="stitch-pill bg-warning-lighten-5 text-premium">Audit Trail</v-chip>
                     </div>
                     <h3 class="text-body-large font-weight-bold mb-1">Stock history</h3>
                     <div class="text-body-medium text-medium-emphasis mb-4">
@@ -280,13 +287,13 @@
                     </div>
 
                     <div v-if="history.length" class="history-list gap-3">
-                        <div v-for="entry in history" :key="entry.id" class="history-row px-4 py-3 border-sm border-warm border-opacity-100 rounded-lg">
+                        <div v-for="entry in history" :key="entry.id" class="history-row px-4 py-3 border-sm border-opacity-100 rounded-lg">
                             <div class="d-flex align-center justify-space-between ga-2">
                                 <v-chip
                                     size="small"
                                     variant="flat"
                                     class="stitch-pill"
-                                    :class="entry.quantity_change >= 0 ? 'bg-surface-mint-subtle text-mint-deep' : 'bg-surface-rose-subtle text-rose-deep'"
+                                    :class="entry.quantity_change >= 0 ? 'bg-info-lighten-5 text-info' : 'bg-primary-lighten-5 text-primary'"
                                 >
                                     {{ entry.quantity_change >= 0 ? '+' : '' }}{{ entry.quantity_change }}
                                 </v-chip>
@@ -294,7 +301,7 @@
                             </div>
                             <div class="font-weight-medium mt-1">{{ entry.reason }}</div>
                             <div class="d-flex align-center justify-space-between ga-2 mt-1">
-                                <v-chip size="x-small" variant="flat" class="stitch-pill bg-canvas-tint text-on-surface-variant">
+                                <v-chip size="x-small" variant="flat" class="stitch-pill bg-surface-light text-on-surface-variant">
                                     {{ transactionTypeLabel(entry.transaction_type) }}
                                 </v-chip>
                                 <span class="text-body-small text-medium-emphasis">
@@ -320,6 +327,7 @@
 import { computed, onMounted, reactive, ref } from 'vue';
 import http from '../../api/http';
 import { formatMxn, formatUsd } from '../../utils/format';
+import { numeric, required } from '../../utils/validation';
 
 const headers = [
     { title: 'Product', key: 'description', sortable: false },
@@ -351,8 +359,9 @@ const activeFilter = ref('all');
 let loadSequence = 0;
 
 const adjustDialog = ref({ show: false, item: null });
-const adjustErrorBag = ref({});
+const adjustFormRef = ref(null);
 const adjusting = ref(false);
+const submitError = ref(null);
 const adjustForm = reactive({ quantity_change: 0, transaction_type: 'MANUAL_ADJUSTMENT', reason: '', notes: '' });
 
 const historyDialog = ref({ show: false, item: null });
@@ -388,11 +397,11 @@ const projectedStock = computed(() => {
 });
 
 function stockClasses(quantity) {
-    if (quantity === 0) return 'bg-surface-rose-subtle text-rose-deep';
+    if (quantity === 0) return 'bg-primary-lighten-5 text-primary';
 
-    if (quantity <= lowStockThreshold) return 'bg-surface-cream-subtle text-status-warning';
+    if (quantity <= lowStockThreshold) return 'bg-warning-lighten-5 text-warning';
 
-    return 'bg-surface-mint-subtle text-mint-deep';
+    return 'bg-info-lighten-5 text-info';
 }
 
 async function load() {
@@ -420,17 +429,27 @@ function onOptions({ page, itemsPerPage }) {
     load();
 }
 
+function notOversell(value) {
+    const current = adjustDialog.value.item?.stock_quantity ?? 0;
+    const projected = current + Number(value ?? 0);
+
+    return projected >= 0 || 'Stock cannot drop below zero';
+}
+
+const adjustQuantityRules = [
+    required('Quantity change is required'),
+    numeric('Must be a number'),
+    notOversell,
+];
+
 function openAdjust(item) {
-    adjustErrorBag.value = {};
+    submitError.value = null;
     adjustForm.quantity_change = 0;
     adjustForm.transaction_type = 'MANUAL_ADJUSTMENT';
     adjustForm.reason = '';
     adjustForm.notes = '';
+    adjustFormRef.value?.resetValidation();
     adjustDialog.value = { show: true, item };
-}
-
-function adjustErrors(key) {
-    return adjustErrorBag.value[key] ?? [];
 }
 
 function transactionTypeLabel(type) {
@@ -454,8 +473,14 @@ async function quickAdjust(item, delta) {
 }
 
 async function submitAdjust() {
+    const { valid } = await adjustFormRef.value.validate();
+
+    if (!valid) {
+        return;
+    }
+
     adjusting.value = true;
-    adjustErrorBag.value = {};
+    submitError.value = null;
 
     try {
         await performAdjust(
@@ -468,7 +493,7 @@ async function submitAdjust() {
 
         adjustDialog.value.show = false;
     } catch (error) {
-        adjustErrorBag.value = error.data?.errors ?? {};
+        submitError.value = Object.values(error.data?.errors ?? {}).flat();
     } finally {
         adjusting.value = false;
     }
@@ -505,12 +530,12 @@ onMounted(load);
     height: 28px;
     font-size: 11px;
     font-weight: 700;
-    background: rgb(var(--v-theme-primary-container));
-    color: rgb(var(--v-theme-on-primary-container));
+    background: rgb(var(--v-theme-primary));
+    color: rgb(var(--v-theme-on-primary));
 }
 
 .preview-banner {
-    background: rgb(var(--v-theme-canvas-tint));
+    background: rgb(var(--v-theme-surface-light));
 }
 
 .history-list {
@@ -519,7 +544,7 @@ onMounted(load);
 }
 
 .history-row {
-    background: rgb(var(--v-theme-surface-card));
+    background: rgb(var(--v-theme-surface));
 }
 
 .search-field {

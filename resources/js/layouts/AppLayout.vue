@@ -1,5 +1,5 @@
 <template>
-    <v-app-bar color="surface-container-lowest" elevation="0" class="">
+    <v-app-bar color="surface" elevation="0" class="">
         <div class="d-flex align-center w-100 px-4">
             <v-btn
                 :icon="drawer ? 'mdi-backburger' : 'mdi-menu'"
@@ -45,10 +45,10 @@
 
             <v-chip
                 variant="flat"
-                class="bg-surface-mint-subtle text-mint-deep text-body-medium font-weight-medium hidden-sm-and-down border-sm border-mint-seafoam border-opacity-100"
+                class="bg-pale-teal-lighten-3 text-pale-teal-darken-4 text-body-medium font-weight-medium hidden-sm-and-down border-sm border-pale-teal border-opacity-100"
             >
                 <div class="d-flex align-center gc-1">
-                    <span class="fx-dot rounded-circle"></span>
+                    <span class="fx-dot bg-pale-teal-darken-1"></span>
                     <span>1 USD = {{ fxRate.toFixed(2) }} MXN</span>
                 </div>
             </v-chip>

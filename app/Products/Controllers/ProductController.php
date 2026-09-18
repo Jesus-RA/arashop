@@ -3,10 +3,12 @@
 namespace App\Products\Controllers;
 
 use App\Products\Actions\ImportProducts;
+use App\Products\Actions\OptimizeProductImage;
 use App\Products\Models\Product;
 use App\Products\Requests\ImportProductsRequest;
 use App\Products\Requests\StoreProductRequest;
 use App\Products\Requests\UpdateProductRequest;
+use App\Products\Requests\UploadProductImageRequest;
 use App\Products\Resources\ProductResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -69,6 +71,19 @@ class ProductController
         $result = app(ImportProducts::class)->preview($request->file('file'));
 
         return response()->json($result);
+    }
+
+    public function uploadImage(UploadProductImageRequest $request): JsonResponse
+    {
+        $image = app(OptimizeProductImage::class)->handle($request->file('image'));
+
+        try {
+            $path = $image->store('products', 'public');
+        } finally {
+            @unlink($image->getRealPath());
+        }
+
+        return response()->json(['image_path' => '/storage/'.$path], 201);
     }
 
     public function destroy(Request $request, Product $product): JsonResponse

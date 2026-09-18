@@ -4,7 +4,7 @@
             <div>
                 <div class="d-flex align-center ga-2 mb-1">
                     <span class="stitch-label">Sales Orders</span>
-                    <v-chip size="small" variant="flat" class="text-body-small font-weight-semibold bg-surface-mint-subtle text-mint-deep">MXN Checkout</v-chip>
+                    <v-chip size="small" variant="flat" class="text-body-small font-weight-semibold bg-info-lighten-5 text-info">MXN Checkout</v-chip>
                 </div>
                 <h1 class="text-headline-small font-weight-bold mb-0">Orders</h1>
                 <p class="text-body-medium text-medium-emphasis mb-0 mt-1">
@@ -20,23 +20,23 @@
 
         <v-row class="mb-4">
             <v-col cols="12" sm="6" lg="3">
+                <KpiCard title="Page Revenue" icon="mdi-cash-multiple" icon-color="success">
+                    <span class="text-success">{{ formatMxn(pageRevenue) }}</span>
+                </KpiCard>
+            </v-col>
+            <v-col cols="12" sm="6" lg="3">
                 <KpiCard title="Total Orders" icon="mdi-receipt-text-outline" icon-color="primary">
                     {{ total }} Orders
                 </KpiCard>
             </v-col>
             <v-col cols="12" sm="6" lg="3">
-                <KpiCard title="Awaiting Payment" icon="mdi-clock-outline" icon-color="status-warning">
-                    <span class="text-status-warning">{{ pendingCount }} Pending</span>
+                <KpiCard title="Awaiting Payment" icon="mdi-clock-outline" icon-color="warning">
+                    <span class="text-warning">{{ pendingCount }} Pending</span>
                 </KpiCard>
             </v-col>
             <v-col cols="12" sm="6" lg="3">
-                <KpiCard title="Paid" icon="mdi-check-circle-outline" icon-color="mint-deep">
-                    <span class="text-mint-deep">{{ paidCount }} Paid</span>
-                </KpiCard>
-            </v-col>
-            <v-col cols="12" sm="6" lg="3">
-                <KpiCard title="Page Revenue" icon="mdi-cash-multiple" icon-color="primary">
-                    <span class="text-mint-deep">{{ formatMxn(pageRevenue) }}</span>
+                <KpiCard title="Paid" icon="mdi-check-circle-outline" icon-color="success">
+                    <span class="text-success">{{ paidCount }} Paid</span>
                 </KpiCard>
             </v-col>
         </v-row>
@@ -61,7 +61,7 @@
                             class="text-body-small font-weight-medium"
                             size="small"
                             variant="flat"
-                            :color="activeFilter === pill.value ? 'primary-container' : 'surface-container-high'"
+                            :color="activeFilter === pill.value ? 'primary' : 'surface-variant'"
                             @click="activeFilter = pill.value"
                         >
                             {{ pill.label }}

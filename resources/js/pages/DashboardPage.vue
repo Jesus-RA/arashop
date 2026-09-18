@@ -18,7 +18,7 @@
                 <v-card class="rounded-lg px-5 py-4">
                     <div class="d-flex align-center justify-space-between">
                         <span class="text-body-small text-medium-emphasis">Active Products &amp; Catalog</span>
-                        <div class="stitch-kpi-icon rounded-lg bg-surface-rose-subtle">
+                        <div class="stitch-kpi-icon rounded-lg bg-primary-lighten-5">
                             <v-icon icon="mdi-package-variant" color="primary" size="18" />
                         </div>
                     </div>
@@ -26,7 +26,7 @@
                         <span class="text-headline-small font-weight-bold">{{ productsCount }}</span>
                     </div>
                     <div class="d-flex align-center ga-2 mt-1">
-                        <v-chip size="small" variant="flat" class="stitch-pill bg-surface-rose-subtle text-primary">{{ variantCount }} Variants</v-chip>
+                        <v-chip size="small" variant="flat" class="stitch-pill bg-primary-lighten-5 text-primary">{{ variantCount }} Variants</v-chip>
                         <span class="text-body-small text-medium-emphasis">products tracked</span>
                     </div>
                 </v-card>
@@ -36,13 +36,13 @@
                 <v-card class="rounded-lg px-5 py-4">
                     <div class="d-flex align-center justify-space-between">
                         <span class="text-body-small text-medium-emphasis">Total Portfolio Cost</span>
-                        <div class="stitch-kpi-icon rounded-lg bg-surface-cream-subtle">
-                            <v-icon icon="mdi-cash-multiple" color="tertiary" size="18" />
+                        <div class="stitch-kpi-icon rounded-lg bg-warning-lighten-5">
+                            <v-icon icon="mdi-cash-multiple" color="premium" size="18" />
                         </div>
                     </div>
                     <div class="d-flex align-baseline ga-2 mt-3">
                         <span class="text-headline-small font-weight-bold tabular-nums">{{ formatUsd(totalCostUsd) }}</span>
-                        <span class="text-body-small text-tertiary font-weight-semibold">USD</span>
+                        <span class="text-body-small text-premium font-weight-semibold">USD</span>
                     </div>
                     <div class="text-body-small text-medium-emphasis mt-1">Sourced from Amazon US catalog</div>
                 </v-card>
@@ -52,15 +52,15 @@
                 <v-card class="rounded-lg px-5 py-4">
                     <div class="d-flex align-center justify-space-between">
                         <span class="text-body-small text-medium-emphasis">Projected Resale Value</span>
-                        <div class="stitch-kpi-icon rounded-lg bg-surface-mint-subtle">
-                            <v-icon icon="mdi-trending-up" color="mint-deep" size="18" />
+                        <div class="stitch-kpi-icon rounded-lg bg-info-lighten-5">
+                            <v-icon icon="mdi-trending-up" color="info" size="18" />
                         </div>
                     </div>
                     <div class="d-flex align-baseline ga-2 mt-3">
                         <span class="text-headline-small font-weight-bold tabular-nums">{{ formatMxn(totalResaleMxn) }}</span>
-                        <span class="text-body-small text-mint-deep font-weight-semibold">MXN</span>
+                        <span class="text-body-small text-info font-weight-semibold">MXN</span>
                     </div>
-                    <v-chip size="small" variant="flat" class="stitch-pill bg-surface-mint-subtle text-mint-deep mt-1">{{ avgMargin.toFixed(1) }}% Avg Margin</v-chip>
+                    <v-chip size="small" variant="flat" class="stitch-pill bg-info-lighten-5 text-info mt-1">{{ avgMargin.toFixed(1) }}% Avg Margin</v-chip>
                 </v-card>
             </v-col>
 
@@ -79,7 +79,7 @@
                                 <span class="text-headline-small font-weight-bold tabular-nums">{{ fxRate.toFixed(2) }}</span>
                                 <span class="text-body-small text-medium-emphasis">MXN</span>
                             </div>
-                            <div class="d-flex align-center ga-1 text-mint-deep text-body-small mt-1">
+                            <div class="d-flex align-center ga-1 text-info text-body-small mt-1">
                                 <v-icon icon="mdi-arrow-up" size="14" />
                                 +0.12% today
                             </div>
@@ -108,15 +108,15 @@
                 <v-card class="rounded-lg px-5 py-4 mb-0">
                     <div class="d-flex align-center justify-space-between mb-4">
                         <div class="d-flex align-center ga-3">
-                            <div class="stitch-kpi-icon rounded-lg bg-surface-rose-subtle">
-                                <v-icon icon="mdi-candlestick-chart" color="rose-deep" size="18" />
+                            <div class="stitch-kpi-icon rounded-lg bg-primary-lighten-5">
+                                <v-icon icon="mdi-candlestick-chart" color="primary" size="18" />
                             </div>
                             <div>
                                 <h2 class="text-body-large font-weight-bold mb-0">High-Margin Arbitrage Opportunities</h2>
                                 <p class="text-body-small text-medium-emphasis mb-0">Best validated spreads by market margin</p>
                             </div>
                         </div>
-                        <router-link :to="{ name: 'products.index' }" class="text-rose-deep text-body-medium text-decoration-none">
+                        <router-link :to="{ name: 'products.index' }" class="text-primary text-body-medium text-decoration-none">
                             View all ({{ stockRows.length }}) →
                         </router-link>
                     </div>
@@ -135,7 +135,7 @@
                             <tr v-for="row in opportunities" :key="row.id" class="hover surface-row">
                                 <td class="px-4 py-3">
                                     <div class="d-flex align-center ga-3">
-                                        <div class="chip-icon rounded-lg bg-surface-container">
+                                        <div class="chip-icon rounded-lg bg-surface-light">
                                             <v-icon icon="mdi-package-variant" size="18" color="on-surface-variant" />
                                         </div>
                                         <div class="min-width-0">
@@ -147,10 +147,10 @@
                                 <td class="px-4 py-3 text-right tabular-nums text-body-medium">{{ formatUsd(row.cost_usd) }}</td>
                                 <td class="px-4 py-3 text-right tabular-nums text-body-medium font-weight-semibold">{{ formatMxn(row.price_mxn) }}</td>
                                 <td class="px-4 py-3 text-right">
-                                    <span class="text-mint-deep text-body-medium font-weight-semibold tabular-nums">
+                                    <span class="text-info text-body-medium font-weight-semibold tabular-nums">
                                         +{{ formatMxn(marginMxn(row)) }}
                                     </span>
-                                    <v-chip size="small" variant="flat" class="stitch-pill bg-surface-mint-subtle text-mint-deep mt-1">
+                                    <v-chip size="small" variant="flat" class="stitch-pill bg-info-lighten-5 text-info mt-1">
                                         +{{ marginPct(row).toFixed(1) }}%
                                     </v-chip>
                                 </td>
@@ -159,7 +159,7 @@
                                         :to="{ name: 'pricing.index' }"
                                         class="text-decoration-none"
                                     >
-                                        <v-chip size="small" variant="flat" class="stitch-pill bg-surface-rose-subtle text-rose-deep">Calculate</v-chip>
+                                        <v-chip size="small" variant="flat" class="stitch-pill bg-primary-lighten-5 text-primary">Calculate</v-chip>
                                     </router-link>
                                 </td>
                             </tr>
@@ -175,27 +175,27 @@
                 <v-card class="rounded-lg px-5 py-4 h-100">
                     <div class="d-flex align-center justify-space-between mb-4">
                         <div class="d-flex align-center ga-3">
-                            <div class="stitch-kpi-icon rounded-lg bg-surface-container">
-                                <v-icon icon="mdi-alert" color="tertiary" size="18" />
+                            <div class="stitch-kpi-icon rounded-lg bg-surface-light">
+                                <v-icon icon="mdi-alert" color="premium" size="18" />
                             </div>
                             <div>
                                 <h2 class="text-body-large font-weight-bold mb-0">Stock Health &amp; Restock</h2>
                                 <p class="text-body-small text-medium-emphasis mb-0">Cross-border replenishment indicators</p>
                             </div>
                         </div>
-                        <v-chip size="small" variant="flat" class="stitch-pill bg-surface-cream-subtle text-tertiary">{{ criticalCount }} Critical</v-chip>
+                        <v-chip size="small" variant="flat" class="stitch-pill bg-warning-lighten-5 text-premium">{{ criticalCount }} Critical</v-chip>
                     </div>
 
                     <div class="d-flex flex-column ga-2">
                         <div
                             v-for="row in stockAlerts"
                             :key="row.id"
-                            class="d-flex align-center justify-space-between ga-2 pa-3 stitch-alert border-sm border-warm rounded-lg"
+                            class="d-flex align-center justify-space-between ga-2 pa-3 stitch-alert border-sm rounded-lg"
                         >
                             <div class="min-width-0">
                                 <div class="d-flex align-center ga-2">
                                     <span class="text-body-medium font-weight-medium text-truncate">{{ row.product_name }}</span>
-                                    <v-chip size="small" variant="flat" class="stitch-pill bg-surface-rose-subtle text-rose-deep">
+                                    <v-chip size="small" variant="flat" class="stitch-pill bg-primary-lighten-5 text-primary">
                                             {{ row.stock_quantity }} left
                                         </v-chip>
                                 </div>
@@ -218,7 +218,7 @@
                             <span class="text-body-small text-medium-emphasis">Healthy Stock Ratio</span>
                             <span class="text-body-medium font-weight-semibold tabular-nums">{{ healthyRatio.toFixed(1) }}%</span>
                         </div>
-                        <v-progress-linear height="8" :model-value="healthyRatio" color="mint-deep" rounded />
+                        <v-progress-linear height="8" :model-value="healthyRatio" color="info" rounded />
                     </div>
                 </v-card>
             </v-col>
@@ -227,15 +227,15 @@
         <v-card class="rounded-lg px-5 py-4 mt-5">
             <div class="d-flex flex-wrap align-center justify-space-between ga-2 mb-4">
                 <div class="d-flex align-center ga-3">
-                    <div class="stitch-kpi-icon rounded-lg bg-surface-cream-subtle">
-                        <v-icon icon="mdi-history" color="tertiary" size="18" />
+                    <div class="stitch-kpi-icon rounded-lg bg-warning-lighten-5">
+                        <v-icon icon="mdi-history" color="premium" size="18" />
                     </div>
                     <div>
                         <h2 class="text-body-large font-weight-bold mb-0">Recent Cross-Border Inventory Adjustments</h2>
                         <p class="text-body-small text-medium-emphasis mb-0">Latest ledger movements across your catalog</p>
                     </div>
                 </div>
-                <router-link :to="{ name: 'stock.index' }" class="text-rose-deep text-body-medium text-decoration-none">
+                <router-link :to="{ name: 'stock.index' }" class="text-primary text-body-medium text-decoration-none">
                     Open stock ledger →
                 </router-link>
             </div>
@@ -268,7 +268,7 @@
                                 size="small"
                                 variant="flat"
                                 class="stitch-pill"
-                                :class="entry.quantity_change >= 0 ? 'bg-surface-mint-subtle text-mint-deep' : 'bg-surface-rose-subtle text-rose-deep'"
+                                :class="entry.quantity_change >= 0 ? 'bg-info-lighten-5 text-info' : 'bg-primary-lighten-5 text-primary'"
                             >
                                 {{ entry.quantity_change >= 0 ? '+' : '' }}{{ entry.quantity_change }} units
                             </v-chip>
@@ -425,14 +425,14 @@ onMounted(load);
 }
 
 .surface-row:hover {
-    background: rgb(var(--v-theme-surface-container-low));
+    background: rgb(var(--v-theme-surface-light));
 }
 
 .stitch-alert {
-    background: rgb(var(--v-theme-surface-cream-subtle));
+    background: rgb(var(--v-theme-warning-lighten-5));
 }
 
 .stitch-health {
-    background: rgb(var(--v-theme-canvas-tint));
+    background: rgb(var(--v-theme-surface-light));
 }
 </style>

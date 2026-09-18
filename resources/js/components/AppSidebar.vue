@@ -2,11 +2,11 @@
     <v-navigation-drawer
         v-model="drawer"
         app
-        color="surface-container-lowest"
+        color="surface"
         width="256"
     >
         <aside class="d-flex flex-column h-100 py-3" aria-label="Primary navigation">
-            <div class="stitch-label px-3 ms-1 mb-1">Workspace</div>
+            <div class="font-weight-semibold text-body-small text-uppercase px-3 ms-1 mb-1">Workspace</div>
             <nav class="pa-2">
                 <router-link
                     v-for="item in navItems"
@@ -20,20 +20,6 @@
                     <span>{{ item.title }}</span>
                 </router-link>
             </nav>
-
-            <v-spacer />
-
-            <div class="exchange-stream ma-3 pa-4 border-sm border-warm rounded-lg">
-                <div class="d-flex align-center justify-space-between">
-                    <span class="text-label-medium text-uppercase text-medium-emphasis mb-0">Exchange Stream</span>
-                    <span class="fx-dot rounded-circle"></span>
-                </div>
-                <div class="exchange-stream__value mt-1">
-                    {{ fxRate.toFixed(2) }}
-                    <small>MXN</small>
-                </div>
-                <div class="text-body-small text-medium-emphasis mt-1">Updated just now</div>
-            </div>
         </aside>
     </v-navigation-drawer>
 </template>

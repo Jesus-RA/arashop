@@ -41,12 +41,12 @@
                             v-if="filePreview?.skipped"
                             size="small"
                             variant="flat"
-                            class="text-body-small font-weight-semibold bg-surface-cream-subtle text-status-warning"
+                            class="text-body-small font-weight-semibold bg-warning-lighten-5 text-warning"
                         >
                             {{ filePreview.skipped }} row{{ filePreview.skipped === 1 ? '' : 's' }} skipped
                         </v-chip>
                     </div>
-                    <div class="border border-warm rounded-lg overflow-hidden">
+                    <div class="border rounded-lg overflow-hidden">
                         <v-table density="compact">
                             <thead>
                                 <tr>

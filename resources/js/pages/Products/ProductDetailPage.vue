@@ -30,64 +30,64 @@
                 <v-card class="rounded-lg px-6 py-5 mb-4">
                     <div class="d-flex align-center justify-space-between mb-3">
                         <span class="text-body-small text-medium-emphasis">Listing Preview</span>
-                        <v-chip size="small" variant="flat" class="stitch-pill bg-surface-cream-subtle text-status-warning">
-                            <span class="fx-dot me-1" style="background: rgb(var(--v-theme-status-warning))" />
+                        <v-chip size="small" variant="flat" class="stitch-pill bg-warning-lighten-5 text-warning">
+                            <span class="fx-dot me-1" style="background: rgb(var(--v-theme-warning))" />
                             From Amazon US
                         </v-chip>
                     </div>
-                    <div class="media-pane mb-3 border-sm border-warm rounded-lg">
+                    <div class="media-pane mb-3 border-sm rounded-lg">
                         <v-avatar size="140" rounded="16">
                             <v-img v-if="product.image_path" :src="product.image_path" />
                             <v-icon v-else icon="mdi-package-variant-outline" size="48" color="on-surface-variant" />
                         </v-avatar>
                     </div>
                     <div class="text-body-large font-weight-bold mb-1">{{ product.name }}</div>
-                    <div class="d-flex align-center justify-space-between border-t-sm border-warm  pt-3">
+                    <div class="d-flex align-center justify-space-between border-t-sm  pt-3">
                         <div>
                             <div class="text-body-small text-medium-emphasis">From</div>
-                            <div class="text-title-large font-weight-bold text-mint-deep">{{ mxn(minPriceMxn) }}</div>
+                            <div class="text-title-large font-weight-bold text-info">{{ mxn(minPriceMxn) }}</div>
                         </div>
                         <div class="text-right">
                             <div class="text-body-small text-medium-emphasis">Target Margin</div>
-                            <div class="text-title-large font-weight-bold text-mint-deep">{{ avgMargin.toFixed(1) }}%</div>
+                            <div class="text-title-large font-weight-bold text-info">{{ avgMargin.toFixed(1) }}%</div>
                         </div>
                     </div>
                 </v-card>
 
                 <v-card class="rounded-lg px-6 py-5 mb-4">
                     <div class="d-flex align-center ga-3 mb-3">
-                        <div class="stitch-kpi-icon rounded-lg bg-surface-cream-subtle">
-                            <v-icon icon="mdi-cash-sync" color="tertiary" size="18" />
+                        <div class="stitch-kpi-icon rounded-lg bg-warning-lighten-5">
+                            <v-icon icon="mdi-cash-sync" color="premium" size="18" />
                         </div>
                         <div>
                             <h2 class="text-body-large font-weight-bold mb-0">Sourcing Economics</h2>
                             <p class="text-body-small text-medium-emphasis mb-0">Landed cost &amp; resale spread</p>
                         </div>
                     </div>
-                    <div class="d-flex align-center justify-space-between py-2 border-b-sm border-warm ">
+                    <div class="d-flex align-center justify-space-between py-2 border-b-sm ">
                         <span class="text-body-medium text-medium-emphasis">US Unit Cost (avg)</span>
                         <span class="text-body-medium font-weight-semibold tabular-nums">{{ formatUsd(avgCostUsd) }}</span>
                     </div>
-                    <div class="d-flex align-center justify-space-between py-2 border-b-sm border-warm ">
+                    <div class="d-flex align-center justify-space-between py-2 border-b-sm ">
                         <span class="text-body-medium text-medium-emphasis">Mexico Resale (avg)</span>
                         <span class="text-body-medium font-weight-semibold tabular-nums">{{ mxn(avgPriceMxn) }}</span>
                     </div>
-                    <div class="d-flex align-center justify-space-between py-2 border-b-sm border-warm ">
+                    <div class="d-flex align-center justify-space-between py-2 border-b-sm ">
                         <span class="text-body-medium text-medium-emphasis">Total Stock (units)</span>
-                        <span class="text-body-medium font-weight-semibold text-mint-deep tabular-nums">{{ product.total_stock }}</span>
+                        <span class="text-body-medium font-weight-semibold text-info tabular-nums">{{ product.total_stock }}</span>
                     </div>
                     <div class="d-flex align-center justify-space-between py-2">
                         <span class="text-body-medium text-medium-emphasis">Gross Spread / unit</span>
-                        <span class="text-body-medium font-weight-semibold text-mint-deep tabular-nums">+{{ mxn(avgSpreadMxn) }}</span>
+                        <span class="text-body-medium font-weight-semibold text-info tabular-nums">+{{ mxn(avgSpreadMxn) }}</span>
                     </div>
                 </v-card>
             </v-col>
 
             <v-col cols="12" md="8">
                 <v-card class="stitch-table-card mb-4 rounded-lg">
-                    <div class="d-flex align-center gap-3 p-4 border-b-sm border-warm ">
-                        <div class="stitch-kpi-icon rounded-lg bg-surface-mint-subtle">
-                            <v-icon icon="mdi-variant" color="mint-deep" size="18" />
+                    <div class="d-flex align-center gap-3 p-4 border-b-sm ">
+                        <div class="stitch-kpi-icon rounded-lg bg-info-lighten-5">
+                            <v-icon icon="mdi-variant" color="info" size="18" />
                         </div>
                         <div>
                             <h2 class="text-body-large font-weight-bold mb-0">Mexico Retail Variants</h2>
@@ -98,7 +98,7 @@
                             :to="{ name: 'stock.index' }"
                             class="text-decoration-none"
                         >
-                            <v-chip size="small" variant="flat" class="stitch-pill bg-surface-rose-subtle text-rose-deep">Manage Stock</v-chip>
+                            <v-chip size="small" variant="flat" class="stitch-pill bg-primary-lighten-5 text-primary">Manage Stock</v-chip>
                         </router-link>
                     </div>
                     <div class="table-scroll px-4 pb-4">
@@ -121,7 +121,7 @@
                                             :key="key"
                                             size="small"
                                             variant="flat"
-                                            class="stitch-pill bg-canvas-tint text-on-surface-variant me-1"
+                                            class="stitch-pill bg-surface-light text-on-surface-variant me-1"
                                         >
                                             {{ key }}: {{ value }}
                                         </v-chip>
@@ -133,7 +133,7 @@
                                             size="small"
                                             variant="flat"
                                             class="stitch-pill"
-                                            :class="variant.stock_quantity === 0 ? 'bg-surface-rose-subtle text-rose-deep' : 'bg-surface-mint-subtle text-mint-deep'"
+                                            :class="variant.stock_quantity === 0 ? 'bg-primary-lighten-5 text-primary' : 'bg-info-lighten-5 text-info'"
                                         >
                                             {{ variant.stock_quantity }}
                                         </v-chip>
@@ -147,7 +147,7 @@
                 <v-card class="rounded-lg px-6 py-5">
                     <div class="d-flex align-center justify-space-between mb-3">
                         <div class="d-flex align-center ga-3">
-                            <div class="stitch-kpi-icon rounded-lg bg-surface-container">
+                            <div class="stitch-kpi-icon rounded-lg bg-surface-light">
                                 <v-icon icon="mdi-truck-fast" color="on-surface-variant" size="18" />
                             </div>
                             <div>
@@ -155,7 +155,7 @@
                                 <p class="text-body-small text-medium-emphasis mb-0">US origin listing information</p>
                             </div>
                         </div>
-                        <v-chip size="small" variant="flat" class="stitch-pill bg-surface-cream-subtle text-tertiary">US → MX</v-chip>
+                        <v-chip size="small" variant="flat" class="stitch-pill bg-warning-lighten-5 text-premium">US → MX</v-chip>
                     </div>
                     <p v-if="product.description" class="text-body-medium text-medium-emphasis mb-3">{{ product.description }}</p>
                     <a
@@ -163,7 +163,7 @@
                         :href="product.source_url"
                         target="_blank"
                         rel="noopener noreferrer"
-                        class="text-rose-deep text-body-medium text-decoration-none"
+                        class="text-primary text-body-medium text-decoration-none"
                     >
                         <v-icon icon="mdi-open-in-new" size="16" class="me-1" />
                         View original Amazon US listing
@@ -176,8 +176,8 @@
         <v-dialog v-model="deleteDialog" max-width="420">
             <v-card class="pa-2">
                 <v-card-text class="text-center pt-6">
-                    <div class="mx-auto mb-4 d-flex align-center justify-center rounded-circle bg-error-container delete-icon">
-                        <v-icon icon="mdi-delete-forever" color="status-error" size="28" />
+                    <div class="mx-auto mb-4 d-flex align-center justify-center rounded-circle bg-error-lighten-4 delete-icon">
+                        <v-icon icon="mdi-delete-forever" color="error" size="28" />
                     </div>
                     <h3 class="text-body-large font-weight-bold">Delete Cross-Border Product</h3>
                     <p class="text-body-medium text-medium-emphasis mb-0 mt-2">
@@ -267,7 +267,7 @@ onMounted(load);
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgb(var(--v-theme-canvas-tint));
+    background: rgb(var(--v-theme-surface-light));
 }
 
 .delete-icon {
@@ -276,6 +276,6 @@ onMounted(load);
 }
 
 .surface-row-hover:hover {
-    background: rgb(var(--v-theme-surface-container-low));
+    background: rgb(var(--v-theme-surface-light));
 }
 </style>

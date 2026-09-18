@@ -7,8 +7,8 @@
                 <h1 class="text-headline-small font-weight-bold mb-0">New order</h1>
             </div>
             <v-spacer />
-            <v-chip size="small" variant="flat" class="stitch-pill bg-surface-cream-subtle text-status-warning">
-                <span class="fx-dot me-1" style="background: rgb(var(--v-theme-status-warning))" />
+            <v-chip size="small" variant="flat" class="stitch-pill bg-warning-lighten-5 text-warning">
+                <span class="fx-dot me-1" style="background: rgb(var(--v-theme-warning))" />
                 Pending
             </v-chip>
         </div>
@@ -41,7 +41,7 @@
                         <div
                             v-for="line in lines"
                             :key="line.id"
-                            class="line pa-3 mb-2 border-sm border-warm rounded-lg"
+                            class="line pa-3 mb-2 border-sm rounded-lg"
                         >
                             <div class="d-flex align-center justify-space-between ga-3">
                                 <div class="flex-1-1-auto">
@@ -52,7 +52,7 @@
                                             :key="key"
                                             size="x-small"
                                             variant="flat"
-                                            class="stitch-pill bg-canvas-tint text-on-surface-variant"
+                                            class="stitch-pill bg-surface-light text-on-surface-variant"
                                         >
                                             {{ key }}: {{ value }}
                                         </v-chip>
@@ -107,7 +107,7 @@
                     <v-divider class="my-3" />
                     <div class="d-flex align-center justify-space-between mb-4">
                         <span class="text-body-large font-weight-bold">Total (MXN)</span>
-                        <span class="text-title-large font-weight-bold text-mint-deep tabular-nums">{{ formatMxn(total) }}</span>
+                        <span class="text-title-large font-weight-bold text-info tabular-nums">{{ formatMxn(total) }}</span>
                     </div>
 
                     <v-btn
@@ -273,6 +273,6 @@ onMounted(loadVariants);
 }
 
 .line {
-    background: rgb(var(--v-theme-surface-card));
+    background: rgb(var(--v-theme-surface));
 }
 </style>

@@ -1,14 +1,10 @@
 <template>
-    <div>
-        <div class="d-flex flex-wrap align-center justify-space-between ga-3 mb-5">
+    <div class="d-flex flex-column gr-4">
+        <div class="d-flex flex-wrap align-center justify-space-between ga-3">
             <div>
-                <div class="d-flex align-center ga-2 mb-1">
-                    <span class="stitch-label">Workspace</span>
-                    <v-chip size="small" variant="flat" class="stitch-pill bg-warning-lighten-5 text-premium">Environment Config</v-chip>
-                </div>
                 <h1 class="text-headline-small font-weight-bold mb-0">Settings</h1>
                 <p class="text-body-medium text-medium-emphasis mb-0 mt-1">
-                    Configure currency, FX and default pricing automations.
+                    Configure USD to MXN rate, and defaults to use on pricing calculation.
                 </p>
             </div>
         </div>
@@ -19,8 +15,8 @@
                     <v-card class="rounded-lg px-6 py-5">
                         <v-card-title class="d-flex align-center justify-space-between ga-3 pt-0 px-0 pb-3">
                             <div class="d-flex align-center gc-2">
-                                <div class="stitch-kpi-icon rounded-lg bg-info-lighten-5">
-                                    <span class="text-info">$</span>
+                                <div class="stitch-kpi-icon rounded-lg bg-secondary-lighten-2">
+                                    <span class="text-primary">$</span>
                                 </div>
                                 <div>
                                     <h2 class="text-body-large font-weight-bold my-0">Foreign Exchange</h2>
@@ -46,7 +42,7 @@
                 <v-col cols="12" lg="7">
                     <v-card class="rounded-lg px-6 py-5">
                         <v-card-title class="d-flex align-center ga-3 pa-0 pb-3">
-                            <div class="stitch-kpi-icon rounded-lg bg-primary-lighten-5">
+                            <div class="stitch-kpi-icon rounded-lg bg-secondary-lighten-2">
                                 <span class="text-primary">%</span>
                             </div>
                             <div>
@@ -109,7 +105,7 @@
                 </v-col>
             </v-row>
 
-            <div class="form-actions gap-3 px-5 py-4 border-sm rounded-lg">
+            <div class="d-flex align-center justify-space-between gc-3 bg-surface gap-3 px-5 py-4 rounded-lg">
                 <div class="d-flex align-center ga-2">
                     <span class="text-body-small text-medium-emphasis">Changes apply to future calculations</span>
                 </div>
@@ -178,17 +174,3 @@ async function save() {
 
 onMounted(loadSettings);
 </script>
-
-<style scoped>
-.summary-banner {
-    background: rgb(var(--v-theme-surface-light));
-}
-
-.form-actions {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    background: rgb(var(--v-theme-surface));
-}
-</style>

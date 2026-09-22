@@ -76,7 +76,7 @@
                     <div class="d-flex align-end justify-space-between mt-2">
                         <div>
                             <div class="d-flex align-baseline ga-2">
-                                <span class="text-headline-small font-weight-bold tabular-nums">{{ fxRate.toFixed(2) }}</span>
+                                <span class="text-headline-small font-weight-bold tabular-nums">{{ settingsStore.fxUsdToMxn.toFixed(2) }}</span>
                                 <span class="text-body-small text-medium-emphasis">MXN</span>
                             </div>
                             <div class="d-flex align-center ga-1 text-info text-body-small mt-1">
@@ -287,14 +287,15 @@ import { computed, onMounted, ref } from 'vue';
 import http from '../api/http';
 import { formatMxn, formatUsd } from '../utils/format';
 import { useRouter } from 'vue-router';
+import { useSettingsStore } from '../store/settings';
 
 const router = useRouter();
+const settingsStore = useSettingsStore();
 
 const productsCount = ref(0);
 const variantCount = ref(0);
 const totalCostUsd = ref(0);
 const totalResaleMxn = ref(0);
-const fxRate = ref(18.0);
 const stockRows = ref([]);
 const recentAdjustments = ref([]);
 
@@ -340,7 +341,7 @@ const avgMargin = computed(() => {
 });
 
 function costMxn(row) {
-    return (Number(row.cost_usd) || 0) * fxRate.value;
+    return (Number(row.cost_usd) || 0) * settingsStore.fxUsdToMxn;
 }
 
 function marginMxn(row) {
@@ -362,13 +363,13 @@ function formatTime(iso) {
 }
 
 async function load() {
-    const [productsData, stockData, settingsData] = await Promise.all([
+    const [productsData, stockData] = await Promise.all([
         http.get('/api/products?per_page=50'),
         http.get('/api/stock?per_page=100'),
-        http.get('/api/settings'),
     ]);
 
-    fxRate.value = Number(settingsData['fx.usd_to_mxn']) || 18;
+    await settingsStore.load();
+
     productsCount.value = productsData.meta?.total ?? productsData.data.length;
     variantCount.value = productsData.data.reduce((sum, product) => sum + (product.variants_count ?? 0), 0);
 

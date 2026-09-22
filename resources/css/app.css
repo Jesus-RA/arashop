@@ -81,41 +81,6 @@ body {
     text-transform: uppercase;
 }
 
-/* Sidebar navigation links (Stitch pill style). */
-.nav-link {
-    /* color: rgb(var(--v-theme-on-surface-variant)); */
-    transition: background-color 0.15s ease, color 0.15s ease;
-    color: unset;
-}
-
-.nav-link:hover {
-    background-color: rgb(var(--v-theme-primary));
-    color: white;
-}
-
-.nav-link--active {
-    background-color: rgb(var(--v-theme-primary));
-    color: rgb(var(--v-theme-on-primary));
-    box-shadow: 0 2px 10px rgb(var(--v-theme-primary) / 30%);
-}
-
-.nav-link--active .v-icon {
-    color: rgb(var(--v-theme-on-primary));
-}
-
-/* Keep the active pill readable on hover: without this, .nav-link:hover
-   swaps the primary background for the pale surface color while the icon
-   stays white, making the selected icon invisible. */
-.nav-link--active:hover {
-    background-color: rgb(var(--v-theme-primary));
-    color: rgb(var(--v-theme-on-primary));
-    filter: brightness(1.06) saturate(1.05);
-}
-
-.nav-link--active:hover .v-icon {
-    color: rgb(var(--v-theme-on-primary));
-}
-
 /* FX rate pill (header) + Exchange Stream dot. */
 .fx-pill {
     display: inline-flex;
@@ -133,24 +98,6 @@ body {
     border-radius: 100%;
 }
 
-/* Exchange Stream mini-widget in the sidebar footer. */
-.exchange-stream {
-    background: rgb(var(--v-theme-warning-lighten-5, 252, 249, 242));
-}
-
-.exchange-stream__value {
-    color: rgb(var(--v-theme-on-surface));
-    font-size: 20px;
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
-}
-
-.exchange-stream__value small {
-    font-size: 12px;
-    font-weight: 500;
-    color: rgb(var(--v-theme-on-surface-variant));
-}
-
 /* Stitch metric pill rows (KPI cards, inline stats). */
 .stitch-kpi-icon {
     width: 40px;
@@ -162,14 +109,14 @@ body {
 }
 
 /* Warm table header row (Stitch tables). */
-.stitch-table thead tr {
+/* .stitch-table thead tr {
     background: rgb(var(--v-theme-surface-light, 250, 246, 245));
     color: rgb(var(--v-theme-on-surface-variant));
     font-size: 12px;
     font-weight: 600;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-}
+} */
 
 /* Stitch filter pill typography (applied on top of v-chip). */
 .stitch-pill {

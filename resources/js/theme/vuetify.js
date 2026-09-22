@@ -51,6 +51,7 @@ export const defaults = {
     VCombobox: { variant: 'outlined', color: 'primary' },
     VTextarea: { variant: 'outlined', color: 'primary', hideDetails: 'auto' },
     VAlert: { variant: 'tonal' },
+    VFileUpload: { density: 'compact' },
 };
 
 export const vuetify = createVuetify({

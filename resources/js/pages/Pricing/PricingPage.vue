@@ -144,8 +144,8 @@
                 <v-card class="rounded-lg px-6 py-5 mb-4">
                     <v-card-title class="d-flex align-center px-0 pt-0">
                         <div class="d-flex align-center ga-3">
-                            <div class="stitch-kpi-icon rounded-lg bg-pale-teal-lighten-2">
-                                <span class="text-pale-teal">%</span>
+                            <div class="stitch-kpi-icon rounded-lg bg-secondary-lighten-2">
+                                <span class="text-primary">%</span>
                             </div>
                             <div>
                                 <span class="text-body-large font-weight-bold">Breakdown</span>
@@ -192,7 +192,7 @@
                                 <tr>
                                     <td class="text-body-medium font-weight-bold">Earnings at full price</td>
                                     <td class="text-right font-weight-bold tabular-nums">{{ formatUsd(result.earnings_usd) }}</td>
-                                    <td class="text-right font-weight-bold tabular-nums text-pale-teal">{{ formatMxn(result.earnings_mxn) }}</td>
+                                    <td class="text-right font-weight-bold tabular-nums text-info">{{ formatMxn(result.earnings_mxn) }}</td>
                                 </tr>
                                 <template v-if="result.discount_percent > 0">
                                     <tr>
@@ -209,13 +209,13 @@
                             </tbody>
                         </v-table>
 
-                        <div class="d-flex align-center justify-space-between pa-3 mt-3 summary-banner border-sm rounded-lg">
+                        <div class="d-flex align-center justify-space-between pa-3 mt-3 bg-surface-light border-sm rounded-lg">
                             <div>
                                 <div class="stitch-label mb-1">Projected Margin</div>
                                 <div class="text-body-small text-medium-emphasis">After all costs &amp; fees</div>
                             </div>
                             <div class="text-right">
-                                <div class="text-title-large font-weight-bold tabular-nums text-pale-teal">
+                                <div class="text-title-large font-weight-bold tabular-nums text-info">
                                     {{ result.margin_percent }}%
                                 </div>
                                 <div class="text-body-small text-medium-emphasis tabular-nums">
@@ -382,9 +382,5 @@ onMounted(async () => {
 <style scoped>
 .flex-1 {
     flex: 1;
-}
-
-.summary-banner {
-    background: rgb(var(--v-theme-surface-light));
 }
 </style>

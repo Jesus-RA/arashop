@@ -1,52 +1,68 @@
 <template>
-    <div>
-        <div class="d-flex align-center ga-3 mb-4">
-            <v-btn icon="mdi-arrow-left" variant="outlined" width="42" height="42" :to="{ name: 'products.index' }" />
-            <div>
-                <div class="stitch-label mb-1">Amazon US Gateway</div>
-                <h1 class="text-headline-small font-weight-bold mb-0">{{ isEdit ? 'Edit product' : 'New product' }}</h1>
-            </div>
-            <v-spacer />
-            <v-chip size="small" variant="flat" class="stitch-pill bg-surface-light text-on-surface-variant">
-                <span class="fx-dot me-1" style="background: rgb(var(--v-theme-warning))" />
-                {{ isEdit ? 'Edit Mode' : 'Draft' }}
-            </v-chip>
+    <section class="d-flex flex-column gr-3">
+        <div>
+            <v-btn prepend-icon="mdi-arrow-left" variant="text" color="primary" :to="{ name: 'products.index' }">
+                Go Back
+            </v-btn>
+        </div>
+        <div class="d-flex align-center ga-3">
+            <h1 class="text-headline-small font-weight-bold my-0">{{ isEdit ? 'Edit product' : 'New product' }}</h1>
         </div>
 
-        <v-form ref="formRef" @submit.prevent="save">
+        <v-form ref="formRef" @submit.prevent="save" class="d-flex flex-column gr-5">
             <v-row>
                 <v-col cols="12" md="4">
-                    <v-card class="rounded-lg px-6 py-5 mb-4">
-                        <div class="d-flex align-center ga-3 mb-4">
-                            <div class="stitch-kpi-icon rounded-lg bg-primary-lighten-5">
+                    <v-card class="d-flex flex-column gr-3 rounded-lg py-3">
+                        <v-card-title class="d-flex align-center ga-3">
+                            <div class="stitch-kpi-icon rounded-lg bg-secondary-lighten-2">
                                 <v-icon icon="mdi-package-variant" color="primary" size="18" />
                             </div>
                             <div>
-                                <h2 class="text-body-large font-weight-bold mb-0">Product Details</h2>
-                                <p class="text-body-small text-medium-emphasis mb-0">US sourcing fundamentals</p>
+                                <h2 class="text-body-large font-weight-bold my-0">Product Details</h2>
+                                <p class="text-body-small text-medium-emphasis my-0">US sourcing fundamentals</p>
                             </div>
-                        </div>
+                        </v-card-title>
 
-                        <div class="mb-4">
+                        <v-card-text class="d-flex flex-column gr-3 pb-0">
+                            <v-text-field
+                                v-model.trim="form.name"
+                                label="Name"
+                                class=" required"
+                                :rules="[required('Product name is required')]"
+                            />
+                            <v-select
+                                v-model="form.status"
+                                :items="statusOptions"
+                                label="Status"
+                                class=""
+                            />
+                            <v-textarea
+                                v-model.trim="form.description"
+                                label="Description"
+                                rows="3"
+                            />
                             <v-img
                                 v-if="form.image_path"
                                 :src="form.image_path"
                                 max-height="140"
                                 contain
-                                class="mx-auto mb-3 rounded-lg"
+                                class="mx-auto rounded-lg"
                             />
+
                             <v-file-upload
                                 v-model="pickedImage"
+                                title="Drop product image here or click to choose locally"
                                 accept="image/jpeg,image/png"
                                 :multiple="false"
+                                density="compact"
                                 clearable
                                 show-size
-                                prepend-icon="mdi-image-outline"
                                 divider-text="or"
                                 browse-text="Browse"
+                                hide-details=auto
                                 @update:model-value="onPickedImage"
                             />
-                            <div v-if="form.image_path" class="d-flex align-center justify-center ga-2 mt-2">
+                            <div v-if="form.image_path" class="d-flex align-center justify-center ga-2">
                                 <span class="text-body-small text-medium-emphasis">JPG or PNG, up to 4 MB</span>
                                 <v-btn
                                     size="small"
@@ -59,38 +75,20 @@
                                     Remove image
                                 </v-btn>
                             </div>
-                        </div>
-
-                        <v-text-field
-                            v-model.trim="form.name"
-                            label="Name"
-                            class="mb-2 required"
-                            :rules="[required('Product name is required')]"
-                        />
-                        <v-select
-                            v-model="form.status"
-                            :items="statusOptions"
-                            label="Status"
-                            class="mb-2"
-                        />
-                        <v-textarea
-                            v-model.trim="form.description"
-                            label="Description"
-                            rows="3"
-                        />
+                        </v-card-text>
                     </v-card>
                 </v-col>
 
-                <v-col cols="12" md="8">
-                    <v-card class="rounded-lg">
+                <v-col cols="12" md="8" v-if="isEdit">
+                    <v-card class="rounded-lg pt-3 position-relative">
                         <v-card-title class="d-flex align-center justify-space-between ga-2 p-4">
                             <div class="d-flex align-center ga-3">
-                                <div class="stitch-kpi-icon rounded-lg bg-info-lighten-5">
-                                    <v-icon icon="mdi-tune" color="info" size="18" />
+                                <div class="stitch-kpi-icon rounded-lg bg-secondary-lighten-2">
+                                    <v-icon icon="mdi-tune" color="primary" size="18" />
                                 </div>
                                 <div>
-                                    <h2 class="text-body-large font-weight-bold my-0">Pricing &amp; Inventory Matrix</h2>
-                                    <p class="text-body-small text-medium-emphasis my-0">Cost, resale and stock per variant</p>
+                                    <h2 class="text-body-large font-weight-bold my-0">Variants</h2>
+                                    <p class="text-body-small text-medium-emphasis my-0">Cost, selling price and stock per variant</p>
                                 </div>
                             </div>
                             <v-btn color="primary" variant="tonal" size="small" prepend-icon="mdi-plus" :disabled="!productId" @click="openAddVariant">
@@ -98,24 +96,14 @@
                             </v-btn>
                         </v-card-title>
 
-                        <v-card-text>
-                            <v-alert
-                                v-if="!productId"
-                                type="warning"
-                                variant="tonal"
-                                density="compact"
-                                class="mb-3"
-                            >
-                                Save the product first, then add its variants.
-                            </v-alert>
-                            <v-data-table-virtual
+                        <v-card-text class="py-0">
+                            <v-data-table-server
                                 :items="form.variants"
+                                :items-length="form.variants.length"
                                 :headers="variantColumns"
-                                density="comfortable"
+                                :loading="variantsLoading"
+                                density="compact"
                                 disable-sort
-                                hide-no-data
-                                no-data-text="No variants yet"
-                                class="stitch-table"
                             >
                                 <template #item.name="{ item }">
                                     <span class="font-weight-medium">{{ item.name }}</span>
@@ -155,6 +143,15 @@
                                     </v-chip>
                                 </template>
 
+                                <template #no-data>
+                                    <div class="d-flex flex-column gr-3 align-center py-3">
+                                        <p class="my-0">Add stock to you product through your variants</p>
+                                        <v-btn color="primary" variant="tonal" size="small" prepend-icon="mdi-plus" :disabled="!productId" @click="openAddVariant">
+                                            Add variant
+                                        </v-btn>
+                                    </div>
+                                </template>
+
                                 <template #item.actions="{ item }">
                                     <div class="d-flex align-center gc-1">
                                         <v-btn
@@ -172,28 +169,22 @@
                                         />
                                     </div>
                                 </template>
-                            </v-data-table-virtual>
+                            </v-data-table-server>
                         </v-card-text>
                     </v-card>
                 </v-col>
             </v-row>
 
-            <div class="form-actions mt-4 px-5 py-4 gap-3 border-sm rounded-lg">
-                <div class="d-flex align-center ga-2">
-                    <v-chip size="small" variant="flat" class="stitch-pill bg-info-lighten-5 text-info">{{ form.variants.length }} Variants</v-chip>
-                    <span class="text-body-small text-medium-emphasis">Estimated margin will be calculated on save</span>
-                </div>
-                <div class="d-flex align-center ga-2">
-                    <v-btn variant="text" :to="{ name: 'products.index' }">Cancel</v-btn>
-                    <v-btn
-                        type="submit"
-                        color="primary"
-                        :loading="saving"
-                        :disabled="saving"
-                    >
-                        {{ isEdit ? 'Save changes' : 'Create product' }}
-                    </v-btn>
-                </div>
+            <div class="d-flex align-center justify-end gc-3 bg-surface px-5 py-4 gap-3 rounded-lg">
+                <v-btn variant="text" :to="{ name: 'products.index' }">Cancel</v-btn>
+                <v-btn
+                    type="submit"
+                    color="primary"
+                    :loading="saving"
+                    :disabled="saving"
+                >
+                    {{ isEdit ? 'Save changes' : 'Create product' }}
+                </v-btn>
             </div>
         </v-form>
 
@@ -207,7 +198,7 @@
         <v-dialog v-model="deleteDialog" max-width="420">
             <v-card class="pa-2">
                 <v-card-text class="text-center pt-6">
-                    <div class="mx-auto mb-4 d-flex align-center justify-center rounded-circle bg-error-lighten-4 delete-icon">
+                    <div class="mx-auto mb-4 d-flex align-center justify-center rounded-circle bg-error-lighten-4">
                         <v-icon icon="mdi-delete-forever" color="error" size="28" />
                     </div>
                     <h3 class="text-body-large font-weight-bold">Delete variant</h3>
@@ -221,7 +212,7 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
-    </div>
+    </section>
 </template>
 
 <script setup>
@@ -255,6 +246,7 @@ const productId = ref(null);
 
 const uploadingImage = ref(false);
 const pickedImage = ref([]);
+const variantsLoading = ref(false);
 
 const deleteDialog = computed({
     get: () => deleteVariant.value !== null,
@@ -397,21 +389,27 @@ const variantColumns = computed(() => [
 ]);
 
 async function loadProduct() {
-    const { data } = await http.get(`/api/products/${route.params.id}`);
+    variantsLoading.value = true;
 
-    productId.value = data.id;
-    form.name = data.name;
-    form.description = data.description ?? '';
-    form.status = data.status;
-    form.image_path = data.image_path ?? '';
-    form.variants = data.variants.map((variant) => ({
-        id: variant.id,
-        name: variant.name,
-        attributes: Object.entries(variant.attributes ?? {}).map(([key, value]) => ({ key, value })),
-        cost_usd: variant.cost_usd,
-        price_mxn: variant.price_mxn,
-        stock_quantity: variant.stock_quantity,
-    }));
+    try {
+        const { data } = await http.get(`/api/products/${route.params.id}`);
+
+        productId.value = data.id;
+        form.name = data.name;
+        form.description = data.description ?? '';
+        form.status = data.status;
+        form.image_path = data.image_path ?? '';
+        form.variants = data.variants.map((variant) => ({
+            id: variant.id,
+            name: variant.name,
+            attributes: Object.entries(variant.attributes ?? {}).map(([key, value]) => ({ key, value })),
+            cost_usd: variant.cost_usd,
+            price_mxn: variant.price_mxn,
+            stock_quantity: variant.stock_quantity,
+        }));
+    } finally {
+        variantsLoading.value = false;
+    }
 }
 
 async function save() {
@@ -457,21 +455,3 @@ onMounted(() => {
     }
 });
 </script>
-
-<style scoped>
-.form-actions {
-    position: sticky;
-    bottom: 0;
-    z-index: 4;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    background: rgb(var(--v-theme-surface));
-}
-
-.delete-icon {
-    width: 48px;
-    height: 48px;
-}
-</style>

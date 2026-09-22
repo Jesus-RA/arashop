@@ -1,11 +1,7 @@
 <template>
-    <div>
-        <div class="d-flex flex-wrap align-end justify-space-between ga-3 mb-5">
+    <div class="d-flex flex-column gr-4">
+        <div class="d-flex flex-wrap align-end justify-space-between ga-3">
             <div>
-                <div class="d-flex align-center ga-2 mb-1">
-                    <span class="stitch-label">Sales Orders</span>
-                    <v-chip size="small" variant="flat" class="text-body-small font-weight-semibold bg-info-lighten-5 text-info">MXN Checkout</v-chip>
-                </div>
                 <h1 class="text-headline-small font-weight-bold mb-0">Orders</h1>
                 <p class="text-body-medium text-medium-emphasis mb-0 mt-1">
                     Sales captured against live stock, with immutable price snapshots.
@@ -61,7 +57,7 @@
                             class="text-body-small font-weight-medium"
                             size="small"
                             variant="flat"
-                            :color="activeFilter === pill.value ? 'primary' : 'surface-variant'"
+                            :color="activeFilter === pill.value ? 'primary' : 'secondary-lighten-2'"
                             @click="activeFilter = pill.value"
                         >
                             {{ pill.label }}

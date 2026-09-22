@@ -15,16 +15,16 @@ describe('statusLabel', () => {
 
 describe('statusClasses', () => {
     it('maps known statuses to chip classes', () => {
-        expect(statusClasses('active')).toContain('text-info');
-        expect(statusClasses('draft')).toContain('text-warning');
-        expect(statusClasses('archived')).toContain('bg-surface-light');
+        expect(statusClasses('active')).toBe('bg-green-lighten-5');
+        expect(statusClasses('draft')).toBe('bg-warning-lighten-2');
+        expect(statusClasses('archived')).toBe('bg-grey-lighten-2');
     });
 });
 
 describe('statusDotColor', () => {
-    it('maps known statuses to CSS color variables', () => {
-        expect(statusDotColor('active')).toBe('rgb(var(--v-theme-success))');
-        expect(statusDotColor('draft')).toBe('rgb(var(--v-theme-warning))');
-        expect(statusDotColor('archived')).toBe('rgb(var(--v-theme-on-surface-variant))');
+    it('maps known statuses to dot background classes', () => {
+        expect(statusDotColor('active')).toBe('bg-success');
+        expect(statusDotColor('draft')).toBe('bg-orange');
+        expect(statusDotColor('archived')).toBe('bg-grey-darken-1');
     });
 });

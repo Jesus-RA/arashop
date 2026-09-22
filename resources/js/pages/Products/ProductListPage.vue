@@ -1,14 +1,10 @@
 <template>
-    <div>
-        <div class="d-flex flex-wrap align-end justify-space-between ga-3 mb-5">
+    <div class="d-flex flex-column gr-4">
+        <div class="d-flex flex-wrap align-end justify-space-between ga-3">
             <div>
-                <div class="d-flex align-center ga-2 mb-1">
-                    <span class="stitch-label">Catalog Inventory</span>
-                    <v-chip size="small" variant="flat" class="text-body-small font-weight-semibold bg-pale-peach-lighten-1 text-primary">US → MX Pipeline</v-chip>
-                </div>
                 <h1 class="text-headline-small font-weight-bold mb-0">Products</h1>
                 <p class="text-body-medium text-medium-emphasis mb-0 mt-1">
-                    Manage imported Amazon US catalog entries &amp; active Mexico retail variants.
+                    Manage your products and product variants.
                 </p>
             </div>
             <div class="d-flex align-center ga-2">
@@ -64,7 +60,7 @@
                             class="text-body-small font-weight-medium"
                             size="small"
                             variant="flat"
-                            :color="activeFilter === pill.value ? 'primary' : 'surface-variant'"
+                            :color="activeFilter === pill.value ? 'primary' : 'secondary-lighten-2'"
                             @click="activeFilter = pill.value"
                         >
                             {{ pill.label }}
@@ -159,8 +155,8 @@
                     </p>
                 </v-card-text>
                 <v-card-actions class="justify-end pb-4 pe-4">
-                    <v-btn variant="tonal" @click="deleteDialog.show = false">Cancel</v-btn>
-                    <v-btn color="primary" :loading="deleting" @click="destroy">Delete</v-btn>
+                    <v-btn variant="tonal" @click="deleteDialog.show = false">No Keep Product</v-btn>
+                    <v-btn color="primary" :loading="deleting" @click="destroy">Yes Delete Product</v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
@@ -172,10 +168,12 @@ import { computed, onMounted, ref } from 'vue';
 import KpiCard from '../../components/KpiCard.vue';
 import ImportProductsDialog from '../../components/ImportProductsDialog.vue';
 import http from '../../api/http';
+import { useSettingsStore } from '../../store/settings';
 import { useUiStore } from '../../store/ui';
 import { statusClasses, statusDotColor, statusLabel } from '../../utils/productStatus';
 
 const uiStore = useUiStore();
+const settingsStore = useSettingsStore();
 
 const headers = [
     { title: 'Image', key: 'image_path', sortable: false, width: '76px' },
@@ -192,7 +190,6 @@ const search = ref('');
 const total = ref(0);
 const perPage = ref(10);
 const activeFilter = ref('all');
-const fxRate = ref(18.0);
 const stockRows = ref([]);
 
 const deleting = ref(false);
@@ -226,7 +223,7 @@ const avgMargin = computed(() => {
     if (!stockRows.value.length) return 0;
 
     return stockRows.value.reduce((sum, row) => {
-        const costMxn = (Number(row.cost_usd) || 0) * fxRate.value;
+        const costMxn = (Number(row.cost_usd) || 0) * settingsStore.fxUsdToMxn;
         const price = Number(row.price_mxn) || 0;
 
         return sum + (price > 0 ? ((price - costMxn) / price) * 100 : 0);
@@ -261,16 +258,16 @@ async function load() {
     loading.value = true;
 
     try {
-        const [data, stockData, settingsData] = await Promise.all([
+        await settingsStore.load();
+
+        const [data, stockData] = await Promise.all([
             http.get(`/api/products?per_page=${perPage.value}&search=${encodeURIComponent(search.value ?? '')}`),
             http.get('/api/stock?per_page=100'),
-            http.get('/api/settings'),
         ]);
 
         products.value = data.data;
         total.value = data.meta?.total ?? 0;
         stockRows.value = stockData.data;
-        fxRate.value = Number(settingsData['fx.usd_to_mxn']) || 18;
     } finally {
         loading.value = false;
     }

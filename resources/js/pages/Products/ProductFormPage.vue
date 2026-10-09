@@ -75,12 +75,31 @@
                                     Remove image
                                 </v-btn>
                             </div>
+
+                            <div class="d-flex align-center justify-end gc-3">
+                                <v-btn
+                                    variant="text"
+                                    :to="{ name: 'products.index' }"
+                                >
+                                    Cancel
+                                </v-btn>
+                                <v-btn
+                                    type="submit"
+                                    color="primary"
+                                    :loading="saving"
+                                    :disabled="saving"
+                                >
+                                    {{ isEdit ? 'Save changes' : 'Create product' }}
+                                </v-btn>
+                            </div>
                         </v-card-text>
                     </v-card>
                 </v-col>
 
-                <v-col cols="12" md="8" v-if="isEdit">
-                    <v-card class="rounded-lg pt-3 position-relative">
+                <v-col cols="12" md="8">
+                    <v-alert v-if="!isEdit" density="compact" type="info" class="mb-2" variant="tonal">Save the product to start adding variants</v-alert>
+
+                    <v-card class="rounded-lg pt-3 position-relative" :disabled="!isEdit">
                         <v-card-title class="d-flex align-center justify-space-between ga-2 p-4">
                             <div class="d-flex align-center ga-3">
                                 <div class="stitch-kpi-icon rounded-lg bg-secondary-lighten-2">
@@ -134,12 +153,12 @@
 
                                 <template #item.stock_quantity="{ item }">
                                     <v-chip
-                                        size="x-small"
+                                        size="small"
                                         variant="flat"
                                         class="stitch-pill"
-                                        :class="item.stock_quantity === 0 ? 'bg-primary-lighten-5 text-primary' : 'bg-info-lighten-5 text-info'"
+                                        :class="stockClasses(item.stock_quantity)"
                                     >
-                                        {{ item.stock_quantity }}
+                                        {{ item.stock_quantity }} units
                                     </v-chip>
                                 </template>
 
@@ -154,19 +173,31 @@
 
                                 <template #item.actions="{ item }">
                                     <div class="d-flex align-center gc-1">
-                                        <v-btn
-                                            icon="mdi-pencil-outline"
-                                            size="small"
-                                            variant="text"
-                                            @click="openEditVariant(item)"
-                                        />
-                                        <v-btn
-                                            icon="mdi-delete-outline"
-                                            size="small"
-                                            variant="text"
-                                            color="error"
-                                            @click="confirmDeleteVariant(item)"
-                                        />
+                                        <v-tooltip location="top">
+                                            <template #activator="{ props }">
+                                                <v-btn
+                                                    v-bind="props"
+                                                    icon="mdi-pencil-outline"
+                                                    size="small"
+                                                    variant="text"
+                                                    @click="openEditVariant(item)"
+                                                />
+                                            </template>
+                                            <span>Edit</span>
+                                        </v-tooltip>
+                                        <v-tooltip location="top">
+                                            <template #activator="{ props }">
+                                                <v-btn
+                                                    v-bind="props"
+                                                    icon="mdi-delete-outline"
+                                                    size="small"
+                                                    variant="text"
+                                                    color="error"
+                                                    @click="confirmDeleteVariant(item)"
+                                                />
+                                            </template>
+                                            <span>Delete</span>
+                                        </v-tooltip>
                                     </div>
                                 </template>
                             </v-data-table-server>
@@ -174,18 +205,6 @@
                     </v-card>
                 </v-col>
             </v-row>
-
-            <div class="d-flex align-center justify-end gc-3 bg-surface px-5 py-4 gap-3 rounded-lg">
-                <v-btn variant="text" :to="{ name: 'products.index' }">Cancel</v-btn>
-                <v-btn
-                    type="submit"
-                    color="primary"
-                    :loading="saving"
-                    :disabled="saving"
-                >
-                    {{ isEdit ? 'Save changes' : 'Create product' }}
-                </v-btn>
-            </div>
         </v-form>
 
         <ProductVariantForm
@@ -195,23 +214,23 @@
             @saved="onSavedVariant"
         />
 
-        <v-dialog v-model="deleteDialog" max-width="420">
-            <v-card class="pa-2">
-                <v-card-text class="text-center pt-6">
-                    <div class="mx-auto mb-4 d-flex align-center justify-center rounded-circle bg-error-lighten-4">
-                        <v-icon icon="mdi-delete-forever" color="error" size="28" />
-                    </div>
-                    <h3 class="text-body-large font-weight-bold">Delete variant</h3>
-                    <p class="text-body-medium text-medium-emphasis mb-0 mt-2">
-                        Remove "{{ deleteVariant?.name }}" from this product? This cannot be undone.
-                    </p>
-                </v-card-text>
-                <v-card-actions class="justify-end pb-4 pe-4">
-                    <v-btn variant="tonal" @click="deleteVariant = null">Cancel</v-btn>
-                    <v-btn color="error" :loading="deleting" :disabled="deleting" @click="discardVariant">Delete</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
+        <ConfirmDialog
+            v-model="deleteDialog"
+            title="Delete variant"
+            icon="mdi-delete-forever"
+            icon-color="red"
+            cancel-button-text="Cancel"
+            confirm-button-text="Delete"
+            confirm-button-color="red"
+            :loading="deleting"
+            @confirm="discardVariant"
+        >
+            <template #text>
+                <p class="text-body-medium text-medium-emphasis my-0">
+                    Remove "{{ deleteVariant?.name }}" from this product? This cannot be undone.
+                </p>
+            </template>
+        </ConfirmDialog>
     </section>
 </template>
 
@@ -219,10 +238,12 @@
 import { computed, onMounted, reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import ProductVariantForm from '../../components/ProductVariantForm.vue';
+import ConfirmDialog from '../../components/ConfirmDialog.vue';
 import http from '../../api/http';
 import { useUiStore } from '../../store/ui';
 import { formatMxn, formatUsd } from '../../utils/format';
 import { required } from '../../utils/validation';
+import { stockClasses } from '../../utils/stock';
 
 const route = useRoute();
 const router = useRouter();

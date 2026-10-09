@@ -51,7 +51,7 @@ describe('theme', () => {
     });
 
     it('nudges core components toward the app look', () => {
-        expect(defaults.VCard).toEqual({ rounded: 'lg', elevation: 0 });
+        expect(defaults.VCard).toEqual({ rounded: 'lg', class: 'elevation-0.25' });
         expect(defaults.VTextField.variant).toBe('outlined');
         expect(defaults.VChip.rounded).toBe('pill');
     });

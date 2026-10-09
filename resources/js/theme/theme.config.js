@@ -75,7 +75,8 @@ export const themeConfig = {
      */
     light: {
         structural: {
-            // background: '#ffffff',
+            // background: '#FAFAFA',
+            // background: '#F9F9F9',
             // background: colors.primary + '0D',
             background: colors.secondary + '0D',
             surface: '#ffffff',

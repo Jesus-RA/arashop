@@ -1,176 +1,211 @@
 <template>
-    <div>
-        <div class="d-flex align-center ga-3 mb-4">
-            <v-btn icon="mdi-arrow-left" variant="outlined" width="42" height="42" :to="{ name: 'orders.index' }" />
-            <div class="flex-1-1-auto">
-                <div class="stitch-label mb-1">Sales Orders</div>
-                <h1 class="text-headline-small font-weight-bold mb-0">{{ order?.order_number ?? 'Order' }}</h1>
-            </div>
-            <v-spacer />
-            <v-chip
-                v-if="order"
-                size="small"
-                variant="flat"
-                class="stitch-pill"
-                :class="orderStatusClasses(order.status)"
-            >
-                <span class="fx-dot me-1" :style="{ background: orderStatusDotColor(order.status) }" />
-                {{ orderStatusLabel(order.status) }}
-            </v-chip>
+    <section v-if="order" class="d-flex flex-column gr-3">
+        <div>
+            <v-btn prepend-icon="mdi-arrow-left" variant="text" color="primary" :to="{ name: 'orders.index' }">
+                Go Back
+            </v-btn>
         </div>
 
-        <template v-if="order">
-            <v-row class="mb-4">
-                <v-col cols="12" sm="6" lg="3">
-                    <KpiCard title="Total" icon="mdi-cash-multiple" icon-color="info">
-                        {{ formatMxn(order.total_amount) }}
-                    </KpiCard>
-                </v-col>
-                <v-col cols="12" sm="6" lg="3">
-                    <KpiCard title="Items" icon="mdi-package-variant" icon-color="primary">
-                        {{ itemCount }} Unit{{ itemCount === 1 ? '' : 's' }}
-                    </KpiCard>
-                </v-col>
-                <v-col cols="12" sm="6" lg="3">
-                    <KpiCard title="Unit Cost" icon="mdi-currency-usd" icon-color="warning">
-                        {{ formatUsd(unitCostTotal) }}
-                    </KpiCard>
-                </v-col>
-                <v-col cols="12" sm="6" lg="3">
-                    <KpiCard title="Margin" icon="mdi-trending-up" icon-color="primary">
-                        <span class="text-info">{{ margin.toFixed(1) }}%</span>
-                    </KpiCard>
-                </v-col>
-            </v-row>
+        <v-card class="d-flex flex-column ga-3">
+            <v-card-title class="d-flex align-center gc-3">
+                <h1 class="text-headline-small font-weight-bold my-0">{{ order.order_number }}</h1>
+                <v-chip size="small" variant="flat" class="stitch-pill" :class="orderStatusClasses(order.status)">
+                    <span class="fx-dot me-1" :style="{ background: orderStatusDotColor(order.status) }" />
+                    {{ orderStatusLabel(order.status) }}
+                </v-chip>
 
-            <v-card class="rounded-lg pa-4 mb-4">
-                <div class="d-flex flex-wrap align-center justify-space-between gap-3">
-                    <div>
-                        <div class="stitch-label mb-1">Created by</div>
-                        <div class="font-weight-medium">{{ order.user?.name ?? 'System' }}</div>
-                    </div>
-                    <div>
-                        <div class="stitch-label mb-1">Placed</div>
-                        <div class="font-weight-medium">{{ formatDateTime(order.created_at) }}</div>
-                    </div>
-                    <div>
-                        <div class="stitch-label mb-1">Updated</div>
-                        <div class="font-weight-medium">{{ formatDateTime(order.updated_at) }}</div>
-                    </div>
-                    <div class="d-flex align-center ga-2">
-                        <v-btn
-                            v-if="canMarkPaid"
-                            variant="tonal"
-                            color="info"
-                            prepend-icon="mdi-cash"
-                            :loading="updating"
-                            :disabled="updating"
-                            @click="setStatus('paid')"
-                        >
-                            Mark as paid
-                        </v-btn>
-                        <v-btn
-                            v-if="canCancel"
-                            variant="tonal"
-                            color="error"
-                            prepend-icon="mdi-close-circle-outline"
-                            :loading="updating"
-                            :disabled="updating"
-                            @click="confirmCancel = true"
-                        >
-                            Cancel order
-                        </v-btn>
-                    </div>
+                <v-spacer></v-spacer>
+
+                <div class="d-flex align-center ga-2">
+                    <v-btn
+                        v-if="canMarkPaid"
+                        variant="tonal"
+                        color="info"
+                        prepend-icon="mdi-cash"
+                        :loading="updating"
+                        :disabled="updating"
+                        @click="setStatus('paid')"
+                    >
+                        Mark as paid
+                    </v-btn>
+                    <v-btn
+                        v-if="canCancel"
+                        variant="tonal"
+                        color="error"
+                        prepend-icon="mdi-close-circle-outline"
+                        :loading="updating"
+                        :disabled="updating"
+                        @click="confirmCancel = true"
+                    >
+                        Cancel order
+                    </v-btn>
                 </div>
-            </v-card>
+            </v-card-title>
 
-            <v-card class="overflow-hidden rounded-lg">
-                <v-card-title class="d-flex align-center justify-space-between ga-2 p-4">
-                    <div class="d-flex align-center ga-3">
-                        <div class="stitch-kpi-icon rounded-lg bg-warning-lighten-5">
-                            <v-icon icon="mdi-receipt-text-outline" color="warning" size="18" />
-                        </div>
-                        <div>
-                            <h2 class="text-body-large font-weight-bold my-0">Order Lines</h2>
-                            <p class="text-body-small text-medium-emphasis my-0">Snapshotted at checkout — prices never re-open.</p>
-                        </div>
+            <v-card-text class="d-flex flex-column ga-10">
+                <article class="d-flex align-center ga-10">
+                    <div class="d-flex flex-column">
+                        <span class="text-body-small text-medium-emphasis">Created by</span>
+                        <span class="font-weight-bold">{{ order.user?.name ?? 'System' }}</span>
                     </div>
-                </v-card-title>
-                <v-data-table-virtual
-                    :items="order.items"
-                    :headers="headers"
-                    density="comfortable"
-                    disable-sort
-                    class="stitch-table"
-                >
-                    <template #item.name="{ item }">
-                        <div class="font-weight-medium">{{ item.variant?.name ?? 'Deleted variant' }}</div>
-                        <div class="d-flex align-center ga-1 mt-1">
-                            <v-chip
-                                v-for="(value, key) in item.variant?.attributes ?? {}"
-                                :key="key"
-                                size="x-small"
-                                variant="flat"
-                                class="stitch-pill bg-surface-light text-on-surface-variant"
+                    <div class="d-flex flex-column">
+                        <span class="text-body-small text-medium-emphasis">Placed</span>
+                        <span class="font-weight-bold">{{ formatDateTime(order.created_at) }}</span>
+                    </div>
+                    <div class="d-flex flex-column">
+                        <span class="text-body-small text-medium-emphasis">Updated</span>
+                        <span class="font-weight-bold">{{ formatDateTime(order.updated_at) }}</span>
+                    </div>
+                </article>
+
+                <v-row class="align-stretch">
+                    <v-col cols="12" lg="8">
+                        <div class="d-flex align-center ga-3 pb-3">
+                            <div class="stitch-kpi-icon rounded-lg bg-secondary-lighten-2">
+                                <v-icon icon="mdi-receipt-text-outline" color="primary" size="18" />
+                            </div>
+                            <h2 class="text-body-large font-weight-bold my-0">Items</h2>
+                        </div>
+                        <article>
+                            <v-data-table-virtual
+                                :items="order.items"
+                                :items-length="order.items.length"
+                                item-key="id"
+                                :headers="headers"
+                                density="comfortable"
+                                disable-sort
+                                hide-default-footer
                             >
-                                {{ key }}: {{ value }}
-                            </v-chip>
-                        </div>
-                    </template>
+                                <template #item.name="{ item }">
+                                    {{ item.product?.name ?? 'Deleted product' }}
+                                    <template v-if="item.variant?.name"> — {{ item.variant.name }}</template>
+                                </template>
 
-                    <template #item.unit_price_mxn="{ item }">
-                        <span class="tabular-nums">{{ formatMxn(item.unit_price_mxn) }}</span>
-                    </template>
+                                <template #item.unit_price_mxn="{ item }">
+                                    <span class="tabular-nums">{{ formatMxn(item.unit_price_mxn) }}</span>
+                                </template>
 
-                    <template #item.unit_cost_usd="{ item }">
-                        <span class="tabular-nums">{{ formatUsd(item.unit_cost_usd) }}</span>
-                    </template>
+                                <template #item.unit_cost_usd="{ item }">
+                                    <span class="tabular-nums">{{ formatUsd(item.unit_cost_usd) }}</span>
+                                </template>
 
-                    <template #item.subtotal="{ item }">
-                        <span class="tabular-nums font-weight-semibold">{{ formatMxn(item.subtotal) }}</span>
-                    </template>
-                </v-data-table-virtual>
-            </v-card>
-        </template>
+                                <template #item.subtotal="{ item }">
+                                    <span class="tabular-nums font-weight-semibold">{{ formatMxn(item.subtotal) }}</span>
+                                </template>
+                            </v-data-table-virtual>
+                            <div class="d-flex justify-space-between px-4 text-body-medium font-weight-bold">
+                                <p class="my-0 py-3">Total</p>
+                                <p class="my-0 py-3">{{ formatMxn(order.total_amount) }}</p>
+                            </div>
+                        </article>
+                    </v-col>
 
-        <v-dialog v-model="confirmCancel" max-width="420">
-            <v-card class="pa-2">
-                <v-card-text class="text-center pt-6">
-                    <div class="mx-auto mb-4 d-flex align-center justify-center rounded-circle bg-error-lighten-4 delete-icon">
-                        <v-icon icon="mdi-close-circle-outline" color="error" size="28" />
-                    </div>
-                    <h3 class="text-body-large font-weight-bold">Cancel order</h3>
-                    <p class="text-body-medium text-medium-emphasis mb-0 mt-2">
-                        Cancel {{ order?.order_number }}? Sold stock will be returned to the variants.
-                    </p>
-                </v-card-text>
-                <v-card-actions class="justify-end pb-4 pe-4">
-                    <v-btn variant="tonal" @click="confirmCancel = false">Keep order</v-btn>
-                    <v-btn color="error" :loading="updating" :disabled="updating" @click="setStatus('cancelled')">Cancel order</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
-    </div>
+                    <v-col cols="12" lg="4">
+                        <article class="h-100 d-flex flex-column rounded-lg">
+                            <header class="d-flex align-center ga-3 p-4">
+                                <div class="stitch-kpi-icon rounded-lg bg-secondary-lighten-2">
+                                    <v-icon icon="mdi-finance" color="primary" size="18" />
+                                </div>
+                                <div>
+                                    <h2 class="text-body-large font-weight-bold my-0">Highlights</h2>
+                                </div>
+                            </header>
+
+                            <div class="d-flex flex-column ga-4 pa-4">
+                                <div class="d-flex justify-space-between">
+                                    <div class="d-flex flex-column ga-1">
+                                        <span class="text-body-small text-medium-emphasis">Order total</span>
+                                        <span class="text-headline-medium font-weight-bold my-0 tabular-nums">{{ formatMxn(order.total_amount) }}</span>
+                                    </div>
+
+                                    <div class="d-flex flex-column ga-1">
+                                        <span class="text-body-small text-medium-emphasis">Margin</span>
+                                        <span class="text-headline-medium font-weight-bold my-0 tabular-nums text-green-darken-1">{{ margin.toFixed(2) }}%</span>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex flex-column ga-3 rounded-lg py-3">
+                                    <div class="d-flex align-center ga-4">
+                                        <div class="d-flex flex-column ga-3 flex-grow-1">
+                                            <div class="d-flex justify-space-between ga-1">
+                                                <span class="text-body-small text-medium-emphasis">Order Total</span>
+                                                <span class="text-body-medium font-weight-semibold tabular-nums">{{ formatMxn(order.total_amount) }}</span>
+                                            </div>
+                                            <div class="d-flex justify-space-between ga-1">
+                                                <span class="text-body-small text-medium-emphasis">Order Cost</span>
+                                                <span class="text-body-medium font-weight-semibold tabular-nums">{{ formatMxn(totalCostMxn) }}</span>
+                                            </div>
+                                            <v-divider></v-divider>
+                                            <div class="d-flex justify-space-between ga-1">
+                                                <span class="text-body-small text-medium-emphasis">Order Profit</span>
+                                                <span class="text-body-medium font-weight-semibold tabular-nums text-success-darken-1">{{ formatMxn(grossProfitMxn) }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex flex-column ga-2">
+                                    <div class="d-flex align-center rounded-lg overflow-hidden" style="height: 10px">
+                                        <div class="h-100 bg-secondary-lighten-2" :style="{ width: `${costShare}%` }" />
+                                        <div class="h-100 bg-success" :style="{ width: `${profitShare}%` }" />
+                                    </div>
+                                    <div class="d-flex justify-end ga-4 text-body-small text-medium-emphasis">
+                                        <span class="d-flex align-center ga-1">
+                                            <span class="fx-dot bg-secondary-lighten-2" /> Cost
+                                        </span>
+                                        <span class="d-flex align-center ga-1">
+                                            <span class="fx-dot bg-success" /> Profit
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                    </v-col>
+                </v-row>
+
+            </v-card-text>
+        </v-card>
+
+        <ConfirmDialog
+            v-model="confirmCancel"
+            title="Cancel order"
+            icon="mdi-close-circle-outline"
+            icon-color="red"
+            cancel-button-text="Keep order"
+            confirm-button-text="Cancel order"
+            confirm-button-color="red"
+            :loading="updating"
+            @confirm="setStatus('cancelled')"
+        >
+            <template #text>
+                <p class="text-body-medium text-medium-emphasis my-0">
+                    Cancel {{ order.order_number }}? Sold stock will be returned to the variants.
+                </p>
+            </template>
+        </ConfirmDialog>
+    </section>
 </template>
 
 <script setup>
 import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import KpiCard from '../../components/KpiCard.vue';
+import ConfirmDialog from '../../components/ConfirmDialog.vue';
 import http from '../../api/http';
+import { useSettingsStore } from '../../store/settings';
 import { useUiStore } from '../../store/ui';
 import { formatDateTime, formatMxn, formatUsd } from '../../utils/format';
 import { orderStatusClasses, orderStatusDotColor, orderStatusLabel } from '../../utils/orderStatus';
 
 const route = useRoute();
+const settingsStore = useSettingsStore();
 const uiStore = useUiStore();
 
 const headers = [
-    { title: 'Variant', key: 'name', sortable: false },
-    { title: 'Unit Price (MXN)', key: 'unit_price_mxn', sortable: false, width: '150px' },
-    { title: 'Unit Cost (USD)', key: 'unit_cost_usd', sortable: false, width: '150px' },
+    { title: 'Product', key: 'name', sortable: false },
+    { title: 'Unit Price (MXN)', key: 'unit_price_mxn', sortable: false, align: 'end' },
+    { title: 'Unit Cost (USD)', key: 'unit_cost_usd', sortable: false, align: 'end' },
     { title: 'Qty', key: 'quantity', sortable: false, width: '80px' },
-    { title: 'Subtotal', key: 'subtotal', sortable: false, width: '150px' },
+    { title: 'Subtotal', key: 'subtotal', sortable: false, align: 'end' },
 ];
 
 const order = ref(null);
@@ -184,6 +219,12 @@ const itemCount = computed(() => order.value?.items.reduce((sum, item) => sum + 
 const unitCostTotal = computed(() =>
     order.value?.items.reduce((sum, item) => sum + (Number(item.unit_cost_usd) || 0) * (Number(item.quantity) || 0), 0) ?? 0,
 );
+const totalCostMxn = computed(() => unitCostTotal.value * settingsStore.fxUsdToMxn);
+const grossProfitMxn = computed(() => {
+    const total = Number(order.value?.total_amount) || 0;
+
+    return total - totalCostMxn.value;
+});
 const margin = computed(() => {
     const total = Number(order.value?.total_amount) || 0;
 
@@ -191,10 +232,34 @@ const margin = computed(() => {
         return 0;
     }
 
-    return ((total - unitCostTotal.value * 20.5) / total) * 100;
+    return (grossProfitMxn.value / total) * 100;
 });
+const clampedMargin = computed(() => Math.max(0, Math.min(100, margin.value)));
+const marginColor = computed(() => {
+    if (margin.value < 0) {
+        return 'error';
+    }
+
+    if (margin.value < 25) {
+        return 'warning';
+    }
+
+    return 'success';
+});
+const costShare = computed(() => {
+    const total = Number(order.value?.total_amount) || 0;
+
+    if (total <= 0) {
+        return 0;
+    }
+
+    return Math.max(0, Math.min(100, (totalCostMxn.value / total) * 100));
+});
+const profitShare = computed(() => Math.max(0, 100 - costShare.value));
 
 async function loadOrder() {
+    await settingsStore.load();
+
     const { data } = await http.get(`/api/orders/${route.params.id}`);
 
     order.value = data;
@@ -221,14 +286,3 @@ async function setStatus(status) {
 
 onMounted(loadOrder);
 </script>
-
-<style scoped>
-.flex-1-1-auto {
-    flex: 1 1 auto;
-}
-
-.delete-icon {
-    width: 48px;
-    height: 48px;
-}
-</style>

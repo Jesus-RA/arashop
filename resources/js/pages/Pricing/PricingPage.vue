@@ -1,12 +1,9 @@
 <template>
-    <div>
-        <div class="d-flex flex-wrap align-center justify-space-between ga-3 mb-5">
+    <main class="d-flex flex-column gr-3">
+        <div class="d-flex flex-wrap align-center justify-space-between ga-3">
             <div>
-                <div class="d-flex align-center ga-2 mb-1">
-                    <span class="stitch-label">Pricing Desk</span>
-                </div>
-                <h1 class="text-headline-small font-weight-bold mb-0">Pricing calculator</h1>
-                <p class="text-body-medium text-medium-emphasis mb-0 mt-1">
+                <h1 class="text-headline-small font-weight-bold my-0">Pricing calculator</h1>
+                <p class="text-body-medium text-medium-emphasis my-0">
                     Model landed cost, fees and target Mexico retail price.
                 </p>
             </div>
@@ -227,7 +224,7 @@
                 </v-card>
             </v-col>
         </v-row>
-    </div>
+    </main>
 </template>
 
 <script setup>

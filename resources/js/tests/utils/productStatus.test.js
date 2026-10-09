@@ -16,7 +16,7 @@ describe('statusLabel', () => {
 describe('statusClasses', () => {
     it('maps known statuses to chip classes', () => {
         expect(statusClasses('active')).toBe('bg-green-lighten-5');
-        expect(statusClasses('draft')).toBe('bg-warning-lighten-2');
+        expect(statusClasses('draft')).toBe('bg-orange-lighten-5');
         expect(statusClasses('archived')).toBe('bg-grey-lighten-2');
     });
 });

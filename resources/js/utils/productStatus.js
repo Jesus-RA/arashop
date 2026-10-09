@@ -6,7 +6,7 @@ const labels = {
 
 const classes = {
     active: 'bg-green-lighten-5',
-    draft: 'bg-warning-lighten-2',
+    draft: 'bg-orange-lighten-5',
     archived: 'bg-grey-lighten-2',
 };
 

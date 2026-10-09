@@ -1,5 +1,5 @@
 <template>
-    <v-app-bar color="surface" elevation="0">
+    <v-app-bar color="secondary-lighten-2" elevation="0">
         <div class="d-flex align-center gc-4 w-100 px-4">
             <v-menu location="bottom start">
                 <template #activator="{ props }">
@@ -13,7 +13,7 @@
                     />
                 </template>
 
-                <v-list class="py-0">
+                <v-list class="py-0" active-color="primary">
                     <v-list-item
                         v-for="item in navItems"
                         :key="item.to"
@@ -21,6 +21,7 @@
                         :prepend-icon="item.icon"
                         :title="item.title"
                         :active="isActive(item)"
+                        :ripple="{ class: 'text-primary' }"
                         class="text-body-medium font-weight-medium"
                     />
                 </v-list>

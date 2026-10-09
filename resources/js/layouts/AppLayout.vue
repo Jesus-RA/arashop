@@ -2,7 +2,7 @@
     <Header />
 
     <v-main class="stitch-canvas">
-        <v-container fluid class="pa-6">
+        <v-container fluid>
             <router-view />
         </v-container>
     </v-main>

@@ -41,7 +41,7 @@ export const themes = {
 
 /** Component-level defaults that nudge the UI without changing usage. */
 export const defaults = {
-    VCard: { rounded: 'lg', elevation: 0 },
+    VCard: { rounded: 'lg', class: 'elevation-0.25' },
     VDialog: { rounded: 'xl' },
     VBtn: { rounded: 'md' },
     VChip: { rounded: 'pill' },
@@ -50,8 +50,10 @@ export const defaults = {
     VAutocomplete: { variant: 'outlined', density: 'compact', hideDetails: 'auto' },
     VCombobox: { variant: 'outlined', color: 'primary' },
     VTextarea: { variant: 'outlined', color: 'primary', hideDetails: 'auto' },
-    VAlert: { variant: 'tonal' },
     VFileUpload: { density: 'compact' },
+    VDataTableServer: { hover: true },
+    VDataTableVirtual: { hover: true },
+    VDataTable: { hover: true },
 };
 
 export const vuetify = createVuetify({

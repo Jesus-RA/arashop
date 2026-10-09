@@ -1,47 +1,44 @@
 <template>
-    <div class="d-flex flex-column gr-4">
-        <div class="d-flex flex-wrap align-center justify-space-between ga-3">
-            <div>
-                <h1 class="text-headline-small font-weight-bold mb-0">Settings</h1>
-                <p class="text-body-medium text-medium-emphasis mb-0 mt-1">
-                    Configure USD to MXN rate, and defaults to use on pricing calculation.
-                </p>
+    <main class="d-flex flex-column gr-4">
+        <header>
+            <div class="d-flex flex-wrap align-center justify-space-between ga-3">
+                <div>
+                    <h1 class="text-headline-small font-weight-bold my-0">Settings</h1>
+                    <p class="text-body-medium text-medium-emphasis my-0">
+                        Configure USD to MXN rate, and defaults to use on pricing calculation.
+                    </p>
+                </div>
             </div>
-        </div>
+        </header>
 
-        <v-form ref="formRef" @submit.prevent="save" class="d-flex flex-column ga-3">
-            <v-row class="d-flex ga-3">
-                <v-col cols="12" lg="5">
-                    <v-card class="rounded-lg px-6 py-5">
-                        <v-card-title class="d-flex align-center justify-space-between ga-3 pt-0 px-0 pb-3">
-                            <div class="d-flex align-center gc-2">
-                                <div class="stitch-kpi-icon rounded-lg bg-secondary-lighten-2">
-                                    <span class="text-primary">$</span>
-                                </div>
-                                <div>
-                                    <h2 class="text-body-large font-weight-bold my-0">Foreign Exchange</h2>
-                                    <p class="text-body-small text-medium-emphasis my-0">US Dollar → Mexican Peso</p>
-                                </div>
+        <v-card>
+            <v-card-text class="d-flex flex-column ga-5">
+                <v-form ref="formRef" @submit.prevent="save" class="d-flex flex-column ga-10">
+                    <section class="d-flex flex-column ga-5 w-sm-25">
+                        <div class="d-flex align-center gc-2">
+                            <div class="stitch-kpi-icon rounded-lg bg-secondary-lighten-2">
+                                <span class="text-primary">$</span>
                             </div>
-                        </v-card-title>
-                        <v-card-text class="px-0 pt-2">
-                            <v-text-field
-                                v-model.number="form['fx.usd_to_mxn']"
-                                label="USD to MXN rate"
-                                suffix="MXN"
-                                type="number"
-                                step="0.01"
-                                min="0"
-                                prefix="1 USD = "
-                                :rules="fxRateRules"
-                            />
-                        </v-card-text>
-                    </v-card>
-                </v-col>
+                            <div>
+                                <h2 class="text-body-large font-weight-bold my-0">Foreign Exchange</h2>
+                                <p class="text-body-small text-medium-emphasis my-0">US Dollar → Mexican Peso</p>
+                            </div>
+                        </div>
+                        <v-text-field
+                            v-model.number="form['fx.usd_to_mxn']"
+                            label="USD to MXN rate"
+                            suffix="MXN"
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            prefix="1 USD = "
+                            :rules="fxRateRules"
+                        />
+                    </section>
 
-                <v-col cols="12" lg="7">
-                    <v-card class="rounded-lg px-6 py-5">
-                        <v-card-title class="d-flex align-center ga-3 pa-0 pb-3">
+
+                    <section class="d-flex flex-column ga-5">
+                        <div class="d-flex ga-3">
                             <div class="stitch-kpi-icon rounded-lg bg-secondary-lighten-2">
                                 <span class="text-primary">%</span>
                             </div>
@@ -49,77 +46,66 @@
                                 <h2 class="text-body-large font-weight-bold my-0">Pricing Defaults</h2>
                                 <p class="text-body-small text-medium-emphasis my-0">Basis for the pricing calculator automation</p>
                             </div>
-                        </v-card-title>
-                        <v-card-text class="px-0 pt-3">
-                            <v-row>
-                                <v-col cols="12" sm="6">
-                                    <v-text-field
-                                        v-model.number="form['pricing.margin_percent']"
-                                        label="Margin (%)"
-                                        type="number"
-                                        min="0"
-                                        max="100"
-                                        suffix="%"
-                                        :rules="percentRules"
-                                        hint="% you want to earn from each product"
-                                        persistent-hint
-                                    />
-                                </v-col>
-                                <v-col cols="12" sm="6">
-                                    <v-text-field
-                                        v-model.number="form['pricing.platform_fee_percent']"
-                                        label="Platform fee (%)"
-                                        type="number"
-                                        min="0"
-                                        max="100"
-                                        suffix="%"
-                                        :rules="percentRules"
-                                        hint="% fee a platform charges you for selling there"
-                                        persistent-hint
-                                    />
-                                </v-col>
-                                <v-col cols="12" sm="6">
-                                    <v-text-field
-                                        v-model.number="form['pricing.packaging_fee_mxn']"
-                                        label="Packaging fee (MXN)"
-                                        type="number"
-                                        min="0"
-                                        step="0.5"
-                                        :rules="packagingRules"
-                                    />
-                                </v-col>
-                                <v-col cols="12" sm="6">
-                                    <v-text-field
-                                        v-model.number="form['pricing.discount_percent']"
-                                        label="Discount (%)"
-                                        type="number"
-                                        min="0"
-                                        max="100"
-                                        suffix="%"
-                                        :rules="percentRules"
-                                    />
-                                </v-col>
-                            </v-row>
-                        </v-card-text>
-                    </v-card>
-                </v-col>
-            </v-row>
+                        </div>
 
-            <div class="d-flex align-center justify-space-between gc-3 bg-surface gap-3 px-5 py-4 rounded-lg">
-                <div class="d-flex align-center ga-2">
-                    <span class="text-body-small text-medium-emphasis">Changes apply to future calculations</span>
-                </div>
-                <v-btn
-                    type="submit"
-                    color="primary"
-                    :loading="saving"
-                    :disabled="saving"
-                >
-                    Save settings
-                </v-btn>
-            </div>
-        </v-form>
-    </div>
+                        <div class="d-flex flex-column ga-3 w-md-25">
+                            <v-text-field
+                                v-model.number="form['pricing.margin_percent']"
+                                label="Margin (%)"
+                                type="number"
+                                min="0"
+                                max="100"
+                                suffix="%"
+                                :rules="percentRules"
+                                hint="% you want to earn from each product"
+                                persistent-hint
+                            />
+                            <v-text-field
+                                v-model.number="form['pricing.platform_fee_percent']"
+                                label="Platform fee (%)"
+                                type="number"
+                                min="0"
+                                max="100"
+                                suffix="%"
+                                :rules="percentRules"
+                                hint="% fee a platform charges you for selling there"
+                                persistent-hint
+                            />
+                            <v-text-field
+                                v-model.number="form['pricing.packaging_fee_mxn']"
+                                label="Packaging fee (MXN)"
+                                type="number"
+                                min="0"
+                                step="0.5"
+                                :rules="packagingRules"
+                            />
+                            <v-text-field
+                                v-model.number="form['pricing.discount_percent']"
+                                label="Discount (%)"
+                                type="number"
+                                min="0"
+                                max="100"
+                                suffix="%"
+                                :rules="percentRules"
+                            />
+                        </div>
+                    </section>
+
+                    <div class="d-flex align-center ga-3">
+                        <v-btn
+                            type="submit"
+                            color="primary"
+                            :loading="saving"
+                            :disabled="saving"
+                        >
+                            Save settings
+                        </v-btn>
+                        <span class="text-body-small text-medium-emphasis">Changes apply to future calculations</span>
+                    </div>
+                </v-form>
+            </v-card-text>
+        </v-card>
+    </main>
 </template>
 
 <script setup>

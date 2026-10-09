@@ -67,11 +67,29 @@ body {
     background-color: rgb(var(--v-theme-surface, 255, 255, 255));
 }
 
+/*
+ * Typographic base reset. Vuetify's reset layer only zeroes html/body
+ * margins and box-sizing, so p and h1-h6 keep browser defaults. We collapse
+ * them instead: headings inherit body dimensions so the Stitch text-* scale
+ * (text-headline-small, text-body-large, ...) is the single source of truth
+ * for size, weight, and line-height.
+ */
+p {
+    margin: 0;
+}
+
+/* h1, h2, h3, h4, h5, h6 {
+    margin: 0;
+    font-size: inherit;
+    font-weight: inherit;
+    line-height: inherit;
+} */
+
 /* ---- Stitch shell (AppLayout) ---------------------------------------- */
 
-.stitch-canvas {
+/* .stitch-canvas {
     background: rgb(var(--v-theme-background, 255, 248, 247));
-}
+} */
 
 .stitch-label {
     /* color: rgb(var(--v-theme-on-surface-variant)); */
@@ -141,4 +159,21 @@ body {
 .required .v-label::after {
     content: ' *';
     color: red;
+}
+
+/* ---- Fractional elevations (between stock 0 and 1) ---------------------- */
+
+.elevation-0\.25 {
+    box-shadow: 0px 0.25px 0.5px 0px rgba(var(--v-shadow-color), var(--v-shadow-key-opacity, 0.3)), 0px 0.25px 0.75px 0.25px rgba(var(--v-shadow-color), var(--v-shadow-ambient-opacity, 0.15));
+    --v-elevation-overlay: color-mix(in srgb, var(--v-elevation-overlay-color) 0.5%, transparent);
+}
+
+.elevation-0\.5 {
+    box-shadow: 0px 0.5px 1px 0px rgba(var(--v-shadow-color), var(--v-shadow-key-opacity, 0.3)), 0px 0.5px 1.5px 0.5px rgba(var(--v-shadow-color), var(--v-shadow-ambient-opacity, 0.15));
+    --v-elevation-overlay: color-mix(in srgb, var(--v-elevation-overlay-color) 1%, transparent);
+}
+
+.elevation-0\.75 {
+    box-shadow: 0px 0.75px 1.5px 0px rgba(var(--v-shadow-color), var(--v-shadow-key-opacity, 0.3)), 0px 0.75px 2.25px 0.75px rgba(var(--v-shadow-color), var(--v-shadow-ambient-opacity, 0.15));
+    --v-elevation-overlay: color-mix(in srgb, var(--v-elevation-overlay-color) 1.5%, transparent);
 }

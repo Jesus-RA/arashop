@@ -10,9 +10,8 @@
             <h1 class="text-headline-small font-weight-bold my-0">{{ product.name }}</h1>
             <v-chip size="small" variant="flat" class="stitch-pill" :class="statusClasses(product.status)">
                 <div class="d-flex align-center gc-2">
-
-                    <span class="fx-dot" :style="{ background: statusDotColor(product.status) }" />
-                    {{ statusLabel(product.status) }}
+                    <span class="fx-dot" :class="statusDotColor(product.status)" />
+                    <span>{{ statusLabel(product.status) }}</span>
                 </div>
             </v-chip>
 
@@ -132,12 +131,12 @@
 
                             <template #item.stock_quantity="{ item }">
                                 <v-chip
-                                    size="x-small"
+                                    size="small"
                                     variant="flat"
                                     class="stitch-pill"
-                                    :class="item.stock_quantity === 0 ? 'bg-primary-lighten-5 text-primary' : 'bg-info-lighten-5 text-info'"
+                                    :class="stockClasses(item.stock_quantity)"
                                 >
-                                    {{ item.stock_quantity }}
+                                    {{ item.stock_quantity }} units
                                 </v-chip>
                             </template>
                         </v-data-table-server>
@@ -172,6 +171,7 @@ import { useRoute, useRouter } from 'vue-router';
 import http from '../../api/http';
 import { formatMxn, formatUsd } from '../../utils/format';
 import { statusClasses, statusDotColor, statusLabel } from '../../utils/productStatus';
+import { stockClasses } from '../../utils/stock';
 import { useSettingsStore } from '../../store/settings';
 import { useUiStore } from '../../store/ui';
 

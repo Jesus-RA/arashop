@@ -1,129 +1,149 @@
 <template>
-    <div>
-        <div class="d-flex align-center ga-3 mb-4">
-            <v-btn icon="mdi-arrow-left" variant="outlined" width="42" height="42" :to="{ name: 'orders.index' }" />
-            <div class="flex-1-1-auto">
-                <div class="stitch-label mb-1">Sales Orders</div>
-                <h1 class="text-headline-small font-weight-bold mb-0">New order</h1>
-            </div>
-            <v-spacer />
-            <v-chip size="small" variant="flat" class="stitch-pill bg-warning-lighten-5 text-warning">
-                <span class="fx-dot me-1" style="background: rgb(var(--v-theme-warning))" />
-                Pending
-            </v-chip>
+    <section class="d-flex flex-column gr-3">
+        <div>
+            <v-btn prepend-icon="mdi-arrow-left" variant="text" color="primary" :to="{ name: 'orders.index' }">
+                Go Back
+            </v-btn>
+        </div>
+
+        <div class="d-flex align-center ga-3">
+            <h1 class="text-headline-small font-weight-bold my-0">New order</h1>
         </div>
 
         <v-row>
             <v-col cols="12" lg="8">
-                <v-card class="rounded-lg mb-4 pa-4">
-                    <h2 class="text-body-large font-weight-bold mb-1">Add items</h2>
-                    <p class="text-body-small text-medium-emphasis mb-4">
-                        Search the live catalog. Prices are snapshotted into the order at checkout.
-                    </p>
+                <v-card class="rounded-lg mb-4">
+                    <v-card-title class="d-flex align-center ga-3 pa-4 pb-2">
+                        <div class="stitch-kpi-icon rounded-lg bg-secondary-lighten-2">
+                            <v-icon icon="mdi-cart-plus" color="primary" size="18" />
+                        </div>
+                        <div>
+                            <h2 class="text-body-large font-weight-bold my-0">Add items</h2>
+                            <p class="text-body-small text-medium-emphasis my-0">
+                                Search the live catalog. Prices are snapshotted into the order at checkout.
+                            </p>
+                        </div>
+                    </v-card-title>
 
-                    <v-autocomplete
-                        v-model="pickerValue"
-                        :items="pickerItems"
-                        item-title="display"
-                        item-value="id"
-                        label="Search variants…"
-                        prepend-inner-icon="mdi-magnify"
-                        :loading="pickerLoading"
-                        :disabled="saving"
-                        clearable
-                        hide-details
-                        density="compact"
-                        class="mb-4"
-                        @update:model-value="onPick"
-                    />
+                    <v-card-text class="d-flex flex-column gr-3">
+                        <v-autocomplete
+                            v-model="pickerValue"
+                            :items="pickerItems"
+                            item-title="display"
+                            item-value="id"
+                            label="Search variants…"
+                            prepend-inner-icon="mdi-magnify"
+                            :loading="pickerLoading"
+                            :disabled="saving"
+                            clearable
+                            hide-details
+                            density="compact"
+                            @update:model-value="onPick"
+                        />
 
-                    <div v-if="lines.length" class="lines">
-                        <div
-                            v-for="line in lines"
-                            :key="line.id"
-                            class="line pa-3 mb-2 border-sm rounded-lg"
-                        >
-                            <div class="d-flex align-center justify-space-between ga-3">
-                                <div class="flex-1-1-auto">
-                                    <div class="font-weight-medium">{{ line.product_name }} — {{ line.name }}</div>
-                                    <div class="d-flex align-center ga-1 mt-1">
-                                        <v-chip
-                                            v-for="(value, key) in line.attributes ?? {}"
-                                            :key="key"
-                                            size="x-small"
-                                            variant="flat"
-                                            class="stitch-pill bg-surface-light text-on-surface-variant"
-                                        >
-                                            {{ key }}: {{ value }}
-                                        </v-chip>
+                        <div v-if="lines.length" class="d-flex flex-column gr-2">
+                            <div
+                                v-for="line in lines"
+                                :key="line.id"
+                                class="bg-surface pa-3 border-sm rounded-lg"
+                            >
+                                <div class="d-flex align-center justify-space-between ga-3">
+                                    <div class="flex-grow-1">
+                                        <div class="font-weight-medium">{{ line.product_name }} — {{ line.name }}</div>
+                                        <div class="d-flex align-center ga-1 mt-1">
+                                            <v-chip
+                                                v-for="(value, key) in line.attributes ?? {}"
+                                                :key="key"
+                                                size="x-small"
+                                                variant="flat"
+                                                class="stitch-pill bg-surface-light text-on-surface-variant"
+                                            >
+                                                {{ key }}: {{ value }}
+                                            </v-chip>
+                                        </div>
+                                        <div class="text-body-small text-medium-emphasis mt-1">
+                                            {{ formatMxn(line.price_mxn) }} · {{ line.stock_quantity }} in stock
+                                        </div>
                                     </div>
-                                    <div class="text-body-small text-medium-emphasis mt-1">
-                                        {{ formatMxn(line.price_mxn) }} · {{ line.stock_quantity }} in stock
+                                    <div class="d-flex align-center ga-2">
+                                        <v-btn icon="mdi-minus" size="x-small" variant="tonal" :disabled="saving" @click="decrement(line)" />
+                                        <span class="tabular-nums font-weight-semibold" style="min-width: 32px; text-align: center">
+                                            {{ line.quantity }}
+                                        </span>
+                                        <v-btn icon="mdi-plus" size="x-small" variant="tonal" :disabled="saving || line.quantity >= line.stock_quantity" @click="increment(line)" />
+                                        <span class="tabular-nums font-weight-semibold" style="min-width: 90px; text-align: right">
+                                            {{ formatMxn(line.subtotal) }}
+                                        </span>
+                                        <v-tooltip location="top">
+                                            <template #activator="{ props }">
+                                                <v-btn v-bind="props" icon="mdi-close" size="x-small" variant="text" color="error" :disabled="saving" @click="removeLine(line)" />
+                                            </template>
+                                            <span>Remove</span>
+                                        </v-tooltip>
                                     </div>
-                                </div>
-                                <div class="d-flex align-center ga-2">
-                                    <v-btn icon="mdi-minus" size="x-small" variant="tonal" :disabled="saving" @click="decrement(line)" />
-                                    <span class="tabular-nums font-weight-semibold" style="min-width: 32px; text-align: center">
-                                        {{ line.quantity }}
-                                    </span>
-                                    <v-btn icon="mdi-plus" size="x-small" variant="tonal" :disabled="saving || line.quantity >= line.stock_quantity" @click="increment(line)" />
-                                    <span class="tabular-nums font-weight-semibold" style="min-width: 90px; text-align: right">
-                                        {{ formatMxn(line.subtotal) }}
-                                    </span>
-                                    <v-btn icon="mdi-close" size="x-small" variant="text" color="error" :disabled="saving" @click="removeLine(line)" />
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <p v-else class="text-body-medium text-medium-emphasis mb-0">
-                        No items yet — search for a variant above to add it.
-                    </p>
-
-                    <v-alert
-                        v-if="formErrors.length"
-                        type="error"
-                        variant="tonal"
-                        density="compact"
-                        class="mt-4"
-                    >
-                        <p v-for="(error, i) in formErrors" :key="i" class="mb-0">
-                            {{ error }}
+                        <p v-else class="text-body-medium text-medium-emphasis mb-0">
+                            No items yet — search for a variant above to add it.
                         </p>
-                    </v-alert>
+
+                        <v-alert
+                            v-if="formErrors.length"
+                            type="error"
+                            variant="tonal"
+                            density="compact"
+                        >
+                            <p v-for="(error, i) in formErrors" :key="i" class="mb-0">
+                                {{ error }}
+                            </p>
+                        </v-alert>
+                    </v-card-text>
                 </v-card>
             </v-col>
 
             <v-col cols="12" lg="4">
-                <v-card class="rounded-lg pa-5 mb-4">
-                    <div class="stitch-label mb-3">Order Summary</div>
-                    <div class="d-flex align-center justify-space-between mb-2">
-                        <span class="text-body-small text-medium-emphasis">Line items</span>
-                        <span class="text-body-medium">{{ lines.length }}</span>
-                    </div>
-                    <div class="d-flex align-center justify-space-between mb-2">
-                        <span class="text-body-small text-medium-emphasis">Unit count</span>
-                        <span class="text-body-medium">{{ unitCount }}</span>
-                    </div>
-                    <v-divider class="my-3" />
-                    <div class="d-flex align-center justify-space-between mb-4">
-                        <span class="text-body-large font-weight-bold">Total (MXN)</span>
-                        <span class="text-title-large font-weight-bold text-info tabular-nums">{{ formatMxn(total) }}</span>
-                    </div>
+                <v-card class="rounded-lg mb-4">
+                    <v-card-title class="d-flex align-center ga-3 pa-5 pb-2">
+                        <div class="stitch-kpi-icon rounded-lg bg-secondary-lighten-2">
+                            <v-icon icon="mdi-receipt-text-outline" color="primary" size="18" />
+                        </div>
+                        <div>
+                            <h2 class="text-body-large font-weight-bold my-0">Order Summary</h2>
+                            <p class="text-body-small text-medium-emphasis my-0">Snapshot pricing in Mexican pesos</p>
+                        </div>
+                    </v-card-title>
 
-                    <v-btn
-                        block
-                        color="primary"
-                        prepend-icon="mdi-check"
-                        :loading="saving"
-                        :disabled="saving || lines.length === 0"
-                        @click="submit"
-                    >
-                        Confirm order
-                    </v-btn>
+                    <v-card-text class="d-flex flex-column gr-3 pb-5">
+                        <div class="d-flex align-center justify-space-between">
+                            <span class="text-body-small text-medium-emphasis">Line items</span>
+                            <span class="text-body-medium">{{ lines.length }}</span>
+                        </div>
+                        <div class="d-flex align-center justify-space-between">
+                            <span class="text-body-small text-medium-emphasis">Unit count</span>
+                            <span class="text-body-medium">{{ unitCount }}</span>
+                        </div>
+                        <v-divider />
+                        <div class="d-flex align-center justify-space-between">
+                            <span class="text-body-large font-weight-bold">Total (MXN)</span>
+                            <span class="text-title-large font-weight-bold tabular-nums">{{ formatMxn(total) }}</span>
+                        </div>
+
+                        <v-btn
+                            block
+                            color="primary"
+                            prepend-icon="mdi-check"
+                            :loading="saving"
+                            :disabled="saving || lines.length === 0"
+                            @click="submit"
+                        >
+                            Confirm order
+                        </v-btn>
+                    </v-card-text>
                 </v-card>
             </v-col>
         </v-row>
-    </div>
+    </section>
 </template>
 
 <script setup>
@@ -228,7 +248,7 @@ async function loadVariants() {
             .filter((variant) => variant.stock_quantity > 0)
             .map((variant) => ({
                 ...variant,
-                display: `${variant.name} — ${variant.product_name}`,
+                display: `${variant.product_name} - ${variant.name}`,
             }));
     } finally {
         pickerLoading.value = false;
@@ -266,13 +286,3 @@ async function submit() {
 
 onMounted(loadVariants);
 </script>
-
-<style scoped>
-.flex-1-1-auto {
-    flex: 1 1 auto;
-}
-
-.line {
-    background: rgb(var(--v-theme-surface));
-}
-</style>

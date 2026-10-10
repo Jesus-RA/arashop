@@ -142,7 +142,10 @@ class OrderApiTest extends TestCase
             ->assertOk()
             ->assertJsonPath('data.items.0.unit_price_mxn', '299.00')
             ->assertJsonPath('data.items.0.unit_cost_usd', '12.50')
-            ->assertJsonPath('data.items.0.subtotal', '299.00');
+            ->assertJsonPath('data.items.0.subtotal', '299.00')
+            ->assertJsonPath('data.items.0.variant.name', 'White / M')
+            ->assertJsonPath('data.items.0.product.id', $this->product->id)
+            ->assertJsonPath('data.items.0.product.name', $this->product->name);
     }
 
     public function test_it_lists_orders_with_status_filter(): void
@@ -207,6 +210,51 @@ class OrderApiTest extends TestCase
             'transaction_type' => InventoryTransactionType::OrderCancellation->value,
             'reference_id' => $order->id,
         ]);
+    }
+
+    public function test_it_summarises_placed_orders_excluding_cancelled(): void
+    {
+        $placed = Order::factory()->create(['status' => 'paid', 'user_id' => $this->user->id]);
+        OrderItem::factory()->create([
+            'order_id' => $placed->id,
+            'variant_id' => $this->variant->id,
+            'quantity' => 2,
+            'unit_cost_usd' => 12.50,
+            'subtotal' => 598.00,
+        ]);
+
+        $cancelled = Order::factory()->create(['status' => 'cancelled', 'user_id' => $this->user->id]);
+        OrderItem::factory()->create([
+            'order_id' => $cancelled->id,
+            'variant_id' => $this->variant->id,
+            'quantity' => 5,
+            'unit_cost_usd' => 99.00,
+            'subtotal' => 5000.00,
+        ]);
+
+        $this->actingAs($this->user)
+            ->getJson('/api/orders/summary')
+            ->assertOk()
+            ->assertJsonPath('data.orders_count', 1)
+            ->assertJsonPath('data.units_sold', 2)
+            ->assertJsonPath('data.revenue_mxn', '598.00')
+            ->assertJsonPath('data.cost_usd', '25.00');
+    }
+
+    public function test_it_summarises_an_empty_order_book_as_zero(): void
+    {
+        $this->actingAs($this->user)
+            ->getJson('/api/orders/summary')
+            ->assertOk()
+            ->assertJsonPath('data.orders_count', 0)
+            ->assertJsonPath('data.units_sold', 0)
+            ->assertJsonPath('data.revenue_mxn', '0.00')
+            ->assertJsonPath('data.cost_usd', '0.00');
+    }
+
+    public function test_order_summary_requires_authentication(): void
+    {
+        $this->getJson('/api/orders/summary')->assertUnauthorized();
     }
 
     public function test_shipped_status_is_not_accepted(): void

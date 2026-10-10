@@ -26,6 +26,10 @@ class OrderItemResource extends JsonResource
                 'sku' => $this->variant?->sku,
                 'attributes' => $this->variant?->attributes,
             ]),
+            'product' => $this->whenLoaded('variant', fn () => [
+                'id' => $this->variant?->product?->id,
+                'name' => $this->variant?->product?->name,
+            ]),
         ];
     }
 }

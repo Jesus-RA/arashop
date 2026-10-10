@@ -8,5 +8,11 @@ export default defineConfig({
         globals: true,
         setupFiles: ['./resources/js/tests/setup.js'],
         include: ['resources/js/**/*.test.js'],
+        css: true,
+        server: {
+            deps: {
+                inline: ['vuetify'],
+            },
+        },
     },
 });

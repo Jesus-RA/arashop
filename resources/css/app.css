@@ -1,7 +1,7 @@
 /*
  * Arashop global styles.
  *
- * Theme COLORS live in resources/js/theme.js (Vuetify custom theme).
+ * Theme COLORS live in resources/js/theme/theme.config.js (Vuetify theme).
  * This file holds the typography layer that completes the
  * "Warm Modern FinTech" Stitch system: Inter, tabular numerals,
  * hidden scrollbars, and the header rule. Border radius uses the
@@ -11,6 +11,27 @@
  */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
+:root {
+    --primary: #2563EB;
+    --secondary: #64748B;
+    --success: #16A34A;
+    --warning: #F59E0B;
+    --error: #DC2626;
+    --info: #0EA5E9;
+    --premium: #F97316;
+    --coffee: #78350F;
+
+    --brand-primary: #fbafaf;
+    --brand-secondary: #f2c6b4;
+    --brand-tertiary: #f3e8cb;
+    --brand-quaternary: #99e1e5;
+    --brand-surface-variant: #f1f5f9;
+    --brand-on-surface-variant: #475569;
+    --brand-outline-variant: #e2e8f0;
+
+    --b: #F0FAFA;
+}
 
 html,
 body {
@@ -43,63 +64,47 @@ body {
 
 /* Outlined cards rest on the white (dark: warm charcoal) card surface. */
 .v-card--variant-outlined {
-    background-color: rgb(var(--v-theme-surface-card, 255, 255, 255));
+    background-color: rgb(var(--v-theme-surface, 255, 255, 255));
 }
+
+/*
+ * Typographic base reset. Vuetify's reset layer only zeroes html/body
+ * margins and box-sizing, so p and h1-h6 keep browser defaults. We collapse
+ * them instead: headings inherit body dimensions so the Stitch text-* scale
+ * (text-headline-small, text-body-large, ...) is the single source of truth
+ * for size, weight, and line-height.
+ */
+p {
+    margin: 0;
+}
+
+/* h1, h2, h3, h4, h5, h6 {
+    margin: 0;
+    font-size: inherit;
+    font-weight: inherit;
+    line-height: inherit;
+} */
 
 /* ---- Stitch shell (AppLayout) ---------------------------------------- */
 
-.stitch-canvas {
+/* .stitch-canvas {
     background: rgb(var(--v-theme-background, 255, 248, 247));
-}
+} */
 
 .stitch-label {
-    color: rgb(var(--v-theme-on-surface-variant));
+    /* color: rgb(var(--v-theme-on-surface-variant)); */
     font-size: 12px;
     font-weight: 600;
     letter-spacing: 0.08em;
     text-transform: uppercase;
 }
 
-/* Sidebar navigation links (Stitch pill style). */
-.nav-link {
-    color: rgb(var(--v-theme-on-surface-variant));
-    transition: background-color 0.15s ease, color 0.15s ease;
-}
-
-.nav-link:hover {
-    background-color: rgb(var(--v-theme-surface-container-high));
-    color: rgb(var(--v-theme-on-surface));
-}
-
-.nav-link--active {
-    background-color: rgb(var(--v-theme-primary-container));
-    color: rgb(var(--v-theme-on-primary-container));
-    box-shadow: 0 2px 10px rgb(var(--v-theme-primary-container) / 30%);
-}
-
-.nav-link--active .v-icon {
-    color: rgb(var(--v-theme-on-primary-container));
-}
-
-/* Keep the active pill readable on hover: without this, .nav-link:hover
-   swaps the rose background for the pale container color while the icon
-   stays white, making the selected icon invisible. */
-.nav-link--active:hover {
-    background-color: rgb(var(--v-theme-primary-container));
-    color: rgb(var(--v-theme-on-primary-container));
-    filter: brightness(1.06) saturate(1.05);
-}
-
-.nav-link--active:hover .v-icon {
-    color: rgb(var(--v-theme-on-primary-container));
-}
-
 /* FX rate pill (header) + Exchange Stream dot. */
 .fx-pill {
     display: inline-flex;
     align-items: center;
-    background: rgb(var(--v-theme-surface-mint-subtle, 240, 250, 250));
-    color: rgb(var(--v-theme-mint-deep, 29, 107, 111));
+    background: rgb(var(--v-theme-info-lighten-5, 240, 250, 250));
+    color: rgb(var(--v-theme-info, 29, 107, 111));
     font-size: 13px;
     font-weight: 500;
 }
@@ -108,26 +113,7 @@ body {
     display: inline-block;
     width: 6px;
     height: 6px;
-    background: rgb(var(--v-theme-mint-deep, 29, 107, 111));
     border-radius: 100%;
-}
-
-/* Exchange Stream mini-widget in the sidebar footer. */
-.exchange-stream {
-    background: rgb(var(--v-theme-surface-cream-subtle, 252, 249, 242));
-}
-
-.exchange-stream__value {
-    color: rgb(var(--v-theme-on-surface));
-    font-size: 20px;
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
-}
-
-.exchange-stream__value small {
-    font-size: 12px;
-    font-weight: 500;
-    color: rgb(var(--v-theme-on-surface-variant));
 }
 
 /* Stitch metric pill rows (KPI cards, inline stats). */
@@ -141,14 +127,14 @@ body {
 }
 
 /* Warm table header row (Stitch tables). */
-.stitch-table thead tr {
-    background: rgb(var(--v-theme-canvas-tint, 250, 246, 245));
+/* .stitch-table thead tr {
+    background: rgb(var(--v-theme-surface-light, 250, 246, 245));
     color: rgb(var(--v-theme-on-surface-variant));
     font-size: 12px;
     font-weight: 600;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-}
+} */
 
 /* Stitch filter pill typography (applied on top of v-chip). */
 .stitch-pill {
@@ -173,4 +159,21 @@ body {
 .required .v-label::after {
     content: ' *';
     color: red;
+}
+
+/* ---- Fractional elevations (between stock 0 and 1) ---------------------- */
+
+.elevation-0\.25 {
+    box-shadow: 0px 0.25px 0.5px 0px rgba(var(--v-shadow-color), var(--v-shadow-key-opacity, 0.3)), 0px 0.25px 0.75px 0.25px rgba(var(--v-shadow-color), var(--v-shadow-ambient-opacity, 0.15));
+    --v-elevation-overlay: color-mix(in srgb, var(--v-elevation-overlay-color) 0.5%, transparent);
+}
+
+.elevation-0\.5 {
+    box-shadow: 0px 0.5px 1px 0px rgba(var(--v-shadow-color), var(--v-shadow-key-opacity, 0.3)), 0px 0.5px 1.5px 0.5px rgba(var(--v-shadow-color), var(--v-shadow-ambient-opacity, 0.15));
+    --v-elevation-overlay: color-mix(in srgb, var(--v-elevation-overlay-color) 1%, transparent);
+}
+
+.elevation-0\.75 {
+    box-shadow: 0px 0.75px 1.5px 0px rgba(var(--v-shadow-color), var(--v-shadow-key-opacity, 0.3)), 0px 0.75px 2.25px 0.75px rgba(var(--v-shadow-color), var(--v-shadow-ambient-opacity, 0.15));
+    --v-elevation-overlay: color-mix(in srgb, var(--v-elevation-overlay-color) 1.5%, transparent);
 }

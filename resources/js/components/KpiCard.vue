@@ -14,9 +14,10 @@
 
 <script setup>
 const iconBgMap = {
-    primary: 'bg-surface-rose-subtle',
-    'mint-deep': 'bg-surface-mint-subtle',
-    'status-warning': 'bg-surface-cream-subtle',
+    primary: 'bg-secondary-lighten-2',
+    'success': 'bg-green-lighten-5',
+    'info': 'bg-info-lighten-5',
+    'warning': 'bg-amber-lighten-5',
 };
 
 const props = defineProps({

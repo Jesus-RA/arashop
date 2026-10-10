@@ -93,9 +93,10 @@
             </v-card-text>
 
             <v-card-actions class="justify-end">
-                <v-btn variant="tonal" @click="show = false">Cancel</v-btn>
+                <v-btn variant="text" @click="show = false">Cancel</v-btn>
                 <v-btn
                     color="primary"
+                    variant="elevated"
                     :loading="saving"
                     :disabled="saving"
                     @click="save"

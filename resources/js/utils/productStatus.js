@@ -5,15 +5,15 @@ const labels = {
 };
 
 const classes = {
-    active: 'bg-surface-mint-subtle text-mint-deep',
-    draft: 'bg-surface-cream-subtle text-status-warning',
-    archived: 'bg-canvas-tint text-on-surface-variant',
+    active: 'bg-green-lighten-5',
+    draft: 'bg-orange-lighten-5',
+    archived: 'bg-grey-lighten-2',
 };
 
 const dotColors = {
-    active: 'rgb(var(--v-theme-status-success))',
-    draft: 'rgb(var(--v-theme-status-warning))',
-    archived: 'rgb(var(--v-theme-on-surface-variant))',
+    active: 'bg-success',
+    draft: 'bg-orange',
+    archived: 'bg-grey-darken-1',
 };
 
 export function statusLabel(status) {

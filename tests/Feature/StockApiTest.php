@@ -39,6 +39,78 @@ class StockApiTest extends TestCase
             ->assertJsonPath('data.0.product_name', $this->product->name);
     }
 
+    public function test_it_summarises_stock_across_every_variant(): void
+    {
+        $this->product->variants()->create(
+            ProductVariant::factory()->make([
+                'name' => 'Black / L',
+                'stock_quantity' => 4,
+                'cost_usd' => 10.00,
+                'price_mxn' => 250.00,
+            ])->toArray(),
+        );
+
+        $this->variant->update(['stock_quantity' => 6, 'cost_usd' => 12.50, 'price_mxn' => 299.00]);
+
+        $this->actingAs($this->user)
+            ->getJson('/api/stock/summary')
+            ->assertOk()
+            ->assertJsonPath('data.variants_count', 2)
+            ->assertJsonPath('data.total_stock', 10)
+            ->assertJsonPath('data.low_stock_count', 1)
+            ->assertJsonPath('data.low_stock_threshold', 5)
+            ->assertJsonPath('data.total_cost_usd', '115.00')
+            ->assertJsonPath('data.total_resale_mxn', '2794.00');
+    }
+
+    public function test_stock_summary_honours_a_custom_low_stock_threshold(): void
+    {
+        $this->variant->update(['stock_quantity' => 8]);
+
+        $this->actingAs($this->user)
+            ->getJson('/api/stock/summary?low_stock_threshold=10')
+            ->assertOk()
+            ->assertJsonPath('data.low_stock_count', 1)
+            ->assertJsonPath('data.low_stock_threshold', 10);
+    }
+
+    public function test_stock_summary_ignores_soft_deleted_variants_and_null_prices(): void
+    {
+        $this->variant->update(['cost_usd' => null, 'price_mxn' => null, 'stock_quantity' => 7]);
+
+        $trashed = $this->product->variants()->create(
+            ProductVariant::factory()->make(['stock_quantity' => 50, 'cost_usd' => 99.00])->toArray(),
+        );
+        $trashed->delete();
+
+        $this->actingAs($this->user)
+            ->getJson('/api/stock/summary')
+            ->assertOk()
+            ->assertJsonPath('data.variants_count', 1)
+            ->assertJsonPath('data.total_stock', 7)
+            ->assertJsonPath('data.total_cost_usd', '0.00')
+            ->assertJsonPath('data.total_resale_mxn', '0.00');
+    }
+
+    public function test_stock_summary_of_an_empty_catalog_is_zero(): void
+    {
+        $this->variant->delete();
+
+        $this->actingAs($this->user)
+            ->getJson('/api/stock/summary')
+            ->assertOk()
+            ->assertJsonPath('data.variants_count', 0)
+            ->assertJsonPath('data.total_stock', 0)
+            ->assertJsonPath('data.low_stock_count', 0)
+            ->assertJsonPath('data.total_cost_usd', '0.00')
+            ->assertJsonPath('data.total_resale_mxn', '0.00');
+    }
+
+    public function test_stock_summary_requires_authentication(): void
+    {
+        $this->getJson('/api/stock/summary')->assertUnauthorized();
+    }
+
     public function test_it_applies_an_inventory_adjustment(): void
     {
         $this->actingAs($this->user)

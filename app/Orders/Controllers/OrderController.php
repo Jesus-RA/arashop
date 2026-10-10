@@ -6,6 +6,7 @@ use App\Orders\Actions\CancelOrderAction;
 use App\Orders\Actions\CreateOrderAction;
 use App\Orders\Enums\OrderStatus;
 use App\Orders\Models\Order;
+use App\Orders\Models\OrderItem;
 use App\Orders\Requests\StoreOrderRequest;
 use App\Orders\Requests\UpdateOrderRequest;
 use App\Orders\Resources\OrderResource;
@@ -19,7 +20,7 @@ class OrderController
     public function index(Request $request): AnonymousResourceCollection
     {
         $orders = Order::query()
-            ->with(['items.variant', 'user:id,name'])
+            ->with(['items.variant.product', 'user:id,name'])
             ->when($request->filled('status'), function ($query) use ($request) {
                 $query->where('status', $request->string('status'));
             })
@@ -39,18 +40,39 @@ class OrderController
         return OrderResource::collection($orders);
     }
 
+    public function summary(): JsonResponse
+    {
+        $placedOrders = Order::query()->where('status', '!=', OrderStatus::Cancelled);
+
+        $totals = OrderItem::query()
+            ->whereIn('order_id', (clone $placedOrders)->select('id'))
+            ->selectRaw('COALESCE(SUM(quantity), 0) AS units_sold')
+            ->selectRaw('COALESCE(SUM(subtotal), 0) AS revenue_mxn')
+            ->selectRaw('COALESCE(SUM(unit_cost_usd * quantity), 0) AS cost_usd')
+            ->first();
+
+        return response()->json([
+            'data' => [
+                'orders_count' => (clone $placedOrders)->count(),
+                'units_sold' => (int) $totals->units_sold,
+                'revenue_mxn' => number_format((float) $totals->revenue_mxn, 2, '.', ''),
+                'cost_usd' => number_format((float) $totals->cost_usd, 2, '.', ''),
+            ],
+        ]);
+    }
+
     public function store(StoreOrderRequest $request, CreateOrderAction $action): JsonResponse
     {
         $order = $action->handle($request->user(), $request->validated('items'));
 
-        return (new OrderResource($order->load(['items.variant', 'user:id,name'])))
+        return (new OrderResource($order->load(['items.variant.product', 'user:id,name'])))
             ->response()
             ->setStatusCode(201);
     }
 
     public function show(Order $order): OrderResource
     {
-        return new OrderResource($order->load(['items.variant', 'user:id,name']));
+        return new OrderResource($order->load(['items.variant.product', 'user:id,name']));
     }
 
     public function update(UpdateOrderRequest $request, Order $order, CancelOrderAction $cancelAction): OrderResource
@@ -69,6 +91,6 @@ class OrderController
             $order->update(['status' => $status]);
         }
 
-        return new OrderResource($order->load(['items.variant', 'user:id,name']));
+        return new OrderResource($order->load(['items.variant.product', 'user:id,name']));
     }
 }

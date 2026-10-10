@@ -1,14 +1,10 @@
 <template>
-    <div>
-        <div class="d-flex flex-wrap align-end justify-space-between ga-3 mb-5">
+    <main class="d-flex flex-column gr-4">
+        <header class="d-flex flex-wrap align-center justify-space-between ga-3">
             <div>
-                <div class="d-flex align-center ga-2 mb-1">
-                    <span class="stitch-label">Catalog Inventory</span>
-                    <v-chip size="small" variant="flat" class="text-body-small font-weight-semibold bg-surface-rose-subtle text-rose-deep">US → MX Pipeline</v-chip>
-                </div>
-                <h1 class="text-headline-small font-weight-bold mb-0">Products</h1>
-                <p class="text-body-medium text-medium-emphasis mb-0 mt-1">
-                    Manage imported Amazon US catalog entries &amp; active Mexico retail variants.
+                <h1 class="text-headline-small font-weight-bold my-0">Products</h1>
+                <p class="text-body-medium text-medium-emphasis my-0">
+                    Manage your products and product variants.
                 </p>
             </div>
             <div class="d-flex align-center ga-2">
@@ -19,63 +15,22 @@
                     New product
                 </v-btn>
             </div>
-        </div>
+        </header>
 
-        <v-row class="mb-4">
-            <v-col cols="12" sm="6" lg="3">
-                <KpiCard title="Listed Catalog" icon="mdi-storefront" icon-color="primary">
-                    {{ listedCatalog }} Items
-                </KpiCard>
-            </v-col>
-            <v-col cols="12" sm="6" lg="3">
-                <KpiCard title="Active Arbitrage Variants" icon="mdi-check-decagram" icon-color="mint-deep">
-                    {{ activeVariantCount }} Active
-                </KpiCard>
-            </v-col>
-            <v-col cols="12" sm="6" lg="3">
-                <KpiCard title="Low / Out of Stock" icon="mdi-alert" icon-color="status-warning">
-                    <span class="text-status-warning">{{ lowStockCount }} Alerts</span>
-                </KpiCard>
-            </v-col>
-            <v-col cols="12" sm="6" lg="3">
-                <KpiCard title="Avg. Mexico Margin" icon="mdi-trending-up" icon-color="mint-deep">
-                    <span class="text-mint-deep">{{ avgMargin.toFixed(1) }}%</span>
-                </KpiCard>
-            </v-col>
-        </v-row>
-
-        <v-card class="rounded-lg pa-3 mb-4">
-            <div class="d-flex flex-wrap align-center justify-space-between ga-3">
-                <div class="d-flex flex-wrap align-center ga-3 flex-1">
-                    <v-text-field
-                        v-model.trim="search"
-                        label="Search products"
-                        prepend-inner-icon="mdi-magnify"
-                        clearable
-                        hide-details
-                        density="compact"
-                        class="search-field"
-                        @update:model-value="load"
-                    />
-                    <div class="d-flex flex-shrink-0 align-center ga-1">
-                        <v-chip
-                            v-for="pill in filterPills"
-                            :key="pill.value"
-                            class="text-body-small font-weight-medium"
-                            size="small"
-                            variant="flat"
-                            :color="activeFilter === pill.value ? 'primary-container' : 'surface-container-high'"
-                            @click="activeFilter = pill.value"
-                        >
-                            {{ pill.label }}
-                        </v-chip>
-                    </div>
-                </div>
-                <span class="text-body-small text-medium-emphasis">
-                    Showing {{ currentStart }}-{{ currentEnd }} of {{ total }} products
-                </span>
-            </div>
-        </v-card>
+        <section class="d-flex flex-wrap ga-3">
+            <KpiCard title="Listed Catalog" icon="mdi-storefront" icon-color="primary" class="flex-grow-1">
+                {{ listedCatalog }} Items
+            </KpiCard>
+            <KpiCard title="Active Arbitrage Variants" icon="mdi-check-decagram" icon-color="success" class="flex-grow-1">
+                {{ activeVariantCount }} Active
+            </KpiCard>
+            <KpiCard title="Low / Out of Stock" icon="mdi-alert" icon-color="warning" class="flex-grow-1">
+                <span class="text-warning">{{ lowStockCount }} Alerts</span>
+            </KpiCard>
+            <KpiCard title="Avg. Mexico Margin" icon="mdi-trending-up" icon-color="success" class="flex-grow-1">
+                <span class="text-success">{{ avgMargin.toFixed(1) }}%</span>
+            </KpiCard>
+        </section>
 
         <v-card class="overflow-hidden">
             <v-data-table-server
@@ -84,12 +39,45 @@
                 :loading="loading"
                 :items-length="total"
                 :items-per-page="perPage"
-                :items-per-page-options="[10, 20, 50]"
+                :items-per-page-options="[10, 25, 50, 75, 100]"
                 item-key="id"
                 density="comfortable"
                 :hide-default-footer="false"
                 @update:options="onOptions"
             >
+                <template #top>
+                    <article class="d-flex flex-wrap align-center justify-space-between ga-3 px-4 py-2">
+                        <div class="d-flex flex-wrap align-center ga-3 flex-1">
+                            <v-text-field
+                                v-model.trim="search"
+                                label="Search products"
+                                prepend-inner-icon="mdi-magnify"
+                                clearable
+                                hide-details
+                                variant="filled"
+                                class="search-field"
+                                @update:model-value="load"
+                            />
+                            <div class="d-flex flex-shrink-0 align-center ga-1">
+                                <v-chip
+                                    v-for="pill in filterPills"
+                                    :key="pill.value"
+                                    class="text-body-small font-weight-medium"
+                                    size="small"
+                                    variant="flat"
+                                    :color="activeFilter === pill.value ? 'primary' : 'secondary-lighten-2'"
+                                    @click="activeFilter = pill.value"
+                                >
+                                    {{ pill.label }}
+                                </v-chip>
+                            </div>
+                        </div>
+                        <span class="text-body-small text-medium-emphasis">
+                            Showing {{ currentStart }}-{{ currentEnd }} of {{ total }} products
+                        </span>
+                    </article>
+                </template>
+
                 <template #item.image_path="{ item }">
                     <v-avatar size="40" rounded="8">
                         <v-img v-if="item.image_path" :src="item.image_path" />
@@ -110,8 +98,8 @@
                     >
                         <div class="d-flex align-center gc-2">
                             <span
-                                class="fx-dot rounded-circle"
-                                :style="{ background: statusDotColor(item.status) }"
+                                class="fx-dot"
+                                :class="statusDotColor(item.status)"
                             />
                             {{ statusLabel(item.status) }}
                         </div>
@@ -119,7 +107,9 @@
                 </template>
 
                 <template #item.variants_count="{ item }">
-                    {{ item.variants_count }} variants
+                    <v-chip size="small" variant="flat" class="stitch-pill bg-grey-lighten-4">
+                        {{ item.variants_count }} variant{{ item.variants_count === 1 ? '' : 's' }}
+                    </v-chip>
                 </template>
 
                 <template #item.total_stock="{ item }">
@@ -127,18 +117,32 @@
                         size="small"
                         variant="flat"
                         class="stitch-pill"
-                        :class="totalStockChip(item.total_stock).classes"
-                        :prepend-icon="totalStockChip(item.total_stock).icon"
+                        :class="stockClasses(item.total_stock)"
                     >
-                        {{ item.total_stock }}
+                        {{ item.total_stock }} units
                     </v-chip>
                 </template>
 
                 <template #item.actions="{ item }">
-                    <div class="d-flex alig-center gc-1">
-                        <v-btn icon="mdi-eye-outline" size="small" variant="text" :to="{ name: 'products.show', params: { id: item.id } }" />
-                        <v-btn icon="mdi-pencil-outline" size="small" variant="text" :to="{ name: 'products.edit', params: { id: item.id } }" />
-                        <v-btn icon="mdi-delete-outline" size="small" variant="text" color="error" @click="confirmDelete(item)" />
+                    <div class="d-flex align-center gc-1">
+                        <v-tooltip location="top">
+                            <template #activator="{ props }">
+                                <v-btn v-bind="props" icon="mdi-eye-outline" size="small" variant="text" :to="{ name: 'products.show', params: { id: item.id } }" />
+                            </template>
+                            <span>View</span>
+                        </v-tooltip>
+                        <v-tooltip location="top">
+                            <template #activator="{ props }">
+                                <v-btn v-bind="props" icon="mdi-pencil-outline" size="small" variant="text" :to="{ name: 'products.edit', params: { id: item.id } }" />
+                            </template>
+                            <span>Edit</span>
+                        </v-tooltip>
+                        <v-tooltip location="top">
+                            <template #activator="{ props }">
+                                <v-btn v-bind="props" icon="mdi-delete-outline" size="small" variant="text" color="error" @click="confirmDelete(item)" />
+                            </template>
+                            <span>Delete</span>
+                        </v-tooltip>
                     </div>
                 </template>
             </v-data-table-server>
@@ -146,36 +150,40 @@
 
         <ImportProductsDialog v-model="importDialogShow" @imported="onImported" @failed="onImportFailed" />
 
-        <v-dialog v-model="deleteDialog.show" max-width="420">
-            <v-card class="pa-2">
-                <v-card-text class="text-center pt-6">
-                    <div class="mx-auto mb-4 d-flex align-center justify-center rounded-circle bg-error-container delete-icon">
-                        <v-icon icon="mdi-delete-forever" color="status-error" size="28" />
-                    </div>
-                    <h3 class="text-body-large font-weight-bold">Delete Cross-Border Product</h3>
-                    <p class="text-body-medium text-medium-emphasis mb-0 mt-2">
-                        Are you sure you want to remove
-                        <strong>{{ deleteDialog.product?.name }}</strong>? This will delist its pricing automations.
-                    </p>
-                </v-card-text>
-                <v-card-actions class="justify-end pb-4 pe-4">
-                    <v-btn variant="tonal" @click="deleteDialog.show = false">Cancel</v-btn>
-                    <v-btn color="primary" :loading="deleting" @click="destroy">Delete</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
-    </div>
+        <ConfirmDialog
+            v-model="deleteDialog.show"
+            title="Delete Cross-Border Product"
+            icon="mdi-delete-forever"
+            icon-color="red"
+            cancel-button-text="Cancel"
+            confirm-button-text="Yes, delete"
+            confirm-button-color="red"
+            :loading="deleting"
+            @confirm="destroy"
+        >
+            <template #text>
+                <p class="text-body-medium text-medium-emphasis my-0">
+                    Are you sure you want to remove
+                    <strong>{{ deleteDialog.product?.name }}</strong>? This will delist its pricing automations.
+                </p>
+            </template>
+        </ConfirmDialog>
+    </main>
 </template>
 
 <script setup>
 import { computed, onMounted, ref } from 'vue';
 import KpiCard from '../../components/KpiCard.vue';
 import ImportProductsDialog from '../../components/ImportProductsDialog.vue';
+import ConfirmDialog from '../../components/ConfirmDialog.vue';
 import http from '../../api/http';
+import { useSettingsStore } from '../../store/settings';
 import { useUiStore } from '../../store/ui';
 import { statusClasses, statusDotColor, statusLabel } from '../../utils/productStatus';
+import { stockClasses } from '../../utils/stock';
 
 const uiStore = useUiStore();
+const settingsStore = useSettingsStore();
 
 const headers = [
     { title: 'Image', key: 'image_path', sortable: false, width: '76px' },
@@ -192,7 +200,6 @@ const search = ref('');
 const total = ref(0);
 const perPage = ref(10);
 const activeFilter = ref('all');
-const fxRate = ref(18.0);
 const stockRows = ref([]);
 
 const deleting = ref(false);
@@ -226,7 +233,7 @@ const avgMargin = computed(() => {
     if (!stockRows.value.length) return 0;
 
     return stockRows.value.reduce((sum, row) => {
-        const costMxn = (Number(row.cost_usd) || 0) * fxRate.value;
+        const costMxn = (Number(row.cost_usd) || 0) * settingsStore.fxUsdToMxn;
         const price = Number(row.price_mxn) || 0;
 
         return sum + (price > 0 ? ((price - costMxn) / price) * 100 : 0);
@@ -236,41 +243,20 @@ const avgMargin = computed(() => {
 const currentStart = computed(() => (total.value === 0 ? 0 : (perPage.value * 1) - perPage.value + 1));
 const currentEnd = computed(() => Math.min(perPage.value, total.value));
 
-function totalStockChip(quantity) {
-    if (quantity <= 2) {
-        return {
-            icon: 'mdi-alert-octagon-outline',
-            classes: 'bg-surface-rose-subtle text-rose-deep',
-        };
-    }
-
-    if (quantity <= 5) {
-        return {
-            icon: 'mdi-alert-outline',
-            classes: 'bg-surface-cream-subtle text-status-warning',
-        };
-    }
-
-    return {
-        icon: 'mdi-check-circle-outline',
-        classes: 'bg-surface-mint-subtle text-mint-deep',
-    };
-}
-
 async function load() {
     loading.value = true;
 
     try {
-        const [data, stockData, settingsData] = await Promise.all([
+        await settingsStore.load();
+
+        const [data, stockData] = await Promise.all([
             http.get(`/api/products?per_page=${perPage.value}&search=${encodeURIComponent(search.value ?? '')}`),
             http.get('/api/stock?per_page=100'),
-            http.get('/api/settings'),
         ]);
 
         products.value = data.data;
         total.value = data.meta?.total ?? 0;
         stockRows.value = stockData.data;
-        fxRate.value = Number(settingsData['fx.usd_to_mxn']) || 18;
     } finally {
         loading.value = false;
     }
@@ -313,11 +299,6 @@ onMounted(load);
 </script>
 
 <style scoped>
-.delete-icon {
-    width: 48px;
-    height: 48px;
-}
-
 .search-field {
     flex: 1 1 0%;
     min-width: 260px;
